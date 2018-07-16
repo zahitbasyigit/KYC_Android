@@ -17,7 +17,6 @@ class MainActivity : AppCompatActivity(), MainView {
         mainPresenter = MainPresenter()
         mainPresenter?.attach(this)
 
-
     }
 
     override fun onDestroy() {
