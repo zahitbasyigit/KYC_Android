@@ -4,7 +4,81 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_color"
+
     tools:context="com.valensas.kyc_android.MainActivity">
 
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/titleFirstTextView"
+        app:layout_constraintEnd_toStartOf="@+id/verticalGuidelineRight"
+        app:layout_constraintStart_toStartOf="@+id/verticalGuidelineLeft"
+        app:layout_constraintTop_toTopOf="@+id/horizontalGuidelineTop"
+        app:srcCompat="@drawable/kyc_logo_2x" />
+
+    <TextView
+        android:id="@+id/titleFirstTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/sf_ui_display_light"
+        android:includeFontPadding="false"
+        android:text="M"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/horizontalGuidelineBottom"
+        app:layout_constraintEnd_toStartOf="@+id/titleSecondTextView"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="@+id/verticalGuidelineLeft" />
+
+
+    <TextView
+        android:id="@+id/titleSecondTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/sf_ui_display_ultralight"
+        android:includeFontPadding="false"
+        android:text="-OnBoarding"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/verticalGuidelineRight"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/titleFirstTextView"
+        app:layout_constraintTop_toTopOf="@+id/titleFirstTextView" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/horizontalGuidelineTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.30" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/horizontalGuidelineBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.60" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/verticalGuidelineLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/verticalGuidelineRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
 </android.support.constraint.ConstraintLayout>

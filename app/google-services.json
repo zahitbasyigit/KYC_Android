@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1074443735966",
+    "firebase_url": "https://kycandroid-15f98.firebaseio.com",
+    "project_id": "kycandroid-15f98",
+    "storage_bucket": "kycandroid-15f98.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1074443735966:android:6f16387410f4481c",
+        "android_client_info": {
+          "package_name": "com.valensas.kyc_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1074443735966-caeq1ool7tao650nr5jibru8sqsdfaii.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.valensas.kyc_android",
+            "certificate_hash": "bc3b31f65d18c68a92f146f71d3dde7ad17cfae7"
+          }
+        },
+        {
+          "client_id": "1074443735966-kh4ivpttij5ru58ffqqu2vkcn2mn2k5u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaTUDkpevE0mKxjarHXWj9G9ZI8DPWY58"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1074443735966-kh4ivpttij5ru58ffqqu2vkcn2mn2k5u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
