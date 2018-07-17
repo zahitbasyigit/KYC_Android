@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.valensas.kyc_android.identityviacamera.IdentityCameraActivity">
+
+    <FrameLayout
+        android:id="@+id/cameraview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/identityCameraInfoFront"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toStartOf="@+id/identityCameraInfoBack"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/kyc_icon_identity_front"
+                tools:background="@color/colorPrimaryDark" />
+
+            <ImageView
+                android:id="@+id/identityCameraInfoBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/identityCameraInfoFront"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/kyc_icon_identity_back"
+                tools:background="@color/colorPrimaryDark" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/camerainfoview"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/cameraInfoColor"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/identityCameraInfoFront"
+                tools:background="@color/colorPrimaryDark">
+
+                <ImageView
+                    android:id="@+id/identityCameraInfoImage"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintBottom_toTopOf="@+id/identityCameraInfoText"
+                    app:layout_constraintEnd_toStartOf="@+id/cameraInfoVerticalGuidelineRight"
+                    app:layout_constraintStart_toStartOf="@+id/cameraInfoVerticalGuidelineLeft"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/kyc_identity_front" />
+
+                <TextView
+                    android:id="@+id/identityCameraInfoText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/sf_ui_display_thin"
+                    android:gravity="center"
+                    android:text="@string/identityCameraInfoFrontText"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/identityCameraInfoOKButton"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/identityCameraInfoImage" />
+
+                <Button
+                    android:id="@+id/identityCameraInfoOKButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@null"
+                    android:fontFamily="@font/sf_ui_display_semibold"
+                    android:text="@string/identityCameraInfoFrontOK"
+                    android:textAllCaps="false"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/identityCameraInfoText" />
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/cameraInfoVerticalGuidelineLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.10" />
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/cameraInfoVerticalGuidelineRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.90" />
+            </android.support.constraint.ConstraintLayout>
+
+        </android.support.constraint.ConstraintLayout>
+
+    </FrameLayout>
+
+
+</android.support.constraint.ConstraintLayout>
