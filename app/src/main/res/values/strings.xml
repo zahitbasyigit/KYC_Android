@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">KYC_Android</string>
     <string name="welcome_2">Kolay ve hızlı bir şekilde \n hesabınızı oluşturabilirsiniz.</string>
+    <string name="identityCameraInfoFrontText">Telefonunuzu dik tutup kimliğinizin ön tarafını \n ekrandaki gibi alana yerleştirin.</string>
+    <string name="identityCameraInfoBackText">Telefonunuzu dik tutup kimliğinizin arka tarafını \n ekrandaki gibi alana yerleştirin.</string>
+    <string name="identityCameraInfoFrontOK">Tamam</string>
 </resources>
