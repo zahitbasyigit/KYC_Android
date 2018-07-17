@@ -6,5 +6,8 @@
     <color name="upperleft">#0A0248</color>
     <color name="centercolor">#671769</color>
     <color name="lowerright">#AA3290</color>
+    <color name="transparentwhite">#80FFFFFF</color>
+    <color name="white">#ffffff</color>
+
 
 </resources>

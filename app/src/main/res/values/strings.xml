@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">KYC_Android</string>
-    <string name="welcome_2">Kolay ve hızlı bir şekilde \n hesabınızı oluşturabilirsiniz.</string>
+    <string name="welcome_1">Kolay ve hızlı bir şekilde \n hesabınızı oluşturabilirsiniz.</string>
+    <string name="welcome_2">Önce telefonunuzun arka kamerasından \n kimliğinizin önünü ve arkasını taratın.</string>
+    <string name="welcome_3">Sonra telefonunuzun \n ön kamerasından yüzünüzü taratın.</string>
+    <string name="welcome_4">En son imzanızı ekrana çizerek \n kayıt işlemini tamamlayın.</string>
+    <string name="welcome_back_button_text">Geri</string>
+    <string name="welcome_next_button_text">Devam</string>
+    <string name="welcome_start_button_text">Başla</string>
 </resources>

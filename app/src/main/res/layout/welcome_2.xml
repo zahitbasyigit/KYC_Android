@@ -10,12 +10,12 @@
         android:id="@+id/welcomeImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/welcomeTextView"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeHorizontalGuidelineBottom"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toLeftOf="@id/welcomeVerticalGuidelineLeft"
         app:layout_constraintRight_toRightOf="@id/welcomeVerticalGuidelineRight"
         app:layout_constraintTop_toTopOf="@id/welcomeHorizontalGuidelineTop"
-        app:srcCompat="@drawable/kyc_tutorial_rocket_2x" />
+        app:srcCompat="@drawable/kyc_tutorial_rocket" />
 
     <TextView
         android:id="@+id/welcomeTextView"
@@ -26,7 +26,7 @@
         android:gravity="center_horizontal"
         android:text="@string/welcome_2"
         android:textColor="@android:color/white"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -46,19 +46,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.90" />
+        app:layout_constraintGuide_percent="0.40" />
 
     <android.support.constraint.Guideline
         android:id="@+id/welcomeVerticalGuidelineLeft"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.25" />
+        app:layout_constraintGuide_percent="0.35" />
 
     <android.support.constraint.Guideline
         android:id="@+id/welcomeVerticalGuidelineRight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.75" />
+        app:layout_constraintGuide_percent="0.65" />
 </android.support.constraint.ConstraintLayout>

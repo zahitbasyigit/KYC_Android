@@ -12,8 +12,8 @@ import android.widget.TextView
 class SliderAdapter(context:Context):PagerAdapter() {
     internal var context: Context
     internal lateinit var layoutinflater:LayoutInflater
-    var slide_images = intArrayOf(R.drawable.kyc_tutorial_rocket_2x, R.drawable.kyc_tutorial_face_2x, R.drawable.kyc_tutorial_id_2x)
-    var slide_texts = arrayOf<String>("This is for one", "This is for two", " This is for three")
+    public var slide_images = intArrayOf(R.drawable.kyc_tutorial_rocket,  R.drawable.kyc_tutorial_id, R.drawable.kyc_tutorial_face, R.drawable.kyc_tutorial_signature)
+    var slide_texts = arrayOf<String>(context.getString(R.string.welcome_1),context.getString(R.string.welcome_2),context.getString(R.string.welcome_3),context.getString(R.string.welcome_4))
 
     override fun getCount(): Int {
         return slide_images.size    }
