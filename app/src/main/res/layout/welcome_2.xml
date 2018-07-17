@@ -7,18 +7,18 @@
     tools:background="@color/colorPrimaryDark">
 
     <ImageView
-        android:id="@+id/welcomeRocketImageView"
+        android:id="@+id/welcomeImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/welcomeRocketTextView"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeTextView"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/welcomeVerticalGuidelineLeft"
+        app:layout_constraintRight_toRightOf="@id/welcomeVerticalGuidelineRight"
+        app:layout_constraintTop_toTopOf="@id/welcomeHorizontalGuidelineTop"
         app:srcCompat="@drawable/kyc_tutorial_rocket_2x" />
 
     <TextView
-        android:id="@+id/welcomeRocketTextView"
+        android:id="@+id/welcomeTextView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
@@ -31,5 +31,34 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeRocketImageView" />
+        app:layout_constraintTop_toBottomOf="@+id/welcomeImageView" />
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/welcomeHorizontalGuidelineTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.10" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/welcomeHorizontalGuidelineBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.90" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/welcomeVerticalGuidelineLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/welcomeVerticalGuidelineRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.75" />
 </android.support.constraint.ConstraintLayout>
