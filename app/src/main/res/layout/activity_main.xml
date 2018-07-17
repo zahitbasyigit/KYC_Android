@@ -7,15 +7,48 @@
     android:background="@drawable/kyc_background_3x"
     tools:context="com.valensas.kyc_android.MainActivity">
 
-    <com.valensas.kyc_android.WelcomeView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/welcomeView"
+    <ImageView
+        android:id="@+id/welcomeOneImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/horizontalGuidelineBottom"
+        app:layout_constraintBottom_toTopOf="@+id/titleFirstTextView"
         app:layout_constraintEnd_toStartOf="@+id/verticalGuidelineRight"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="@+id/verticalGuidelineLeft"
-        app:layout_constraintTop_toTopOf="@+id/horizontalGuidelineTop" />
+        app:layout_constraintTop_toBottomOf="@+id/horizontalGuidelineTop"
+        app:srcCompat="@drawable/kyc_logo_2x" />
+
+    <TextView
+        android:id="@+id/titleFirstTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/sf_ui_display_light"
+        android:includeFontPadding="false"
+        android:text="M"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/horizontalGuidelineBottom"
+        app:layout_constraintEnd_toStartOf="@+id/titleSecondTextView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="@+id/verticalGuidelineLeft"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeOneImageView" />
+
+
+    <TextView
+        android:id="@+id/titleSecondTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/sf_ui_display_ultralight"
+        android:includeFontPadding="false"
+        android:text="-OnBoarding"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/verticalGuidelineRight"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/titleFirstTextView"
+        app:layout_constraintTop_toTopOf="@+id/titleFirstTextView" />
 
     <android.support.constraint.Guideline
         android:id="@+id/horizontalGuidelineTop"
