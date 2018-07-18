@@ -1,10 +1,14 @@
 package com.valensas.kyc_android
 
+import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
@@ -18,11 +22,11 @@ import com.valensas.kyc_android.identityviacamera.IdentityCameraActivity
 import com.valensas.kyc_android.qrreader.QRReaderActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.w3c.dom.Text
-
+    private const val REQUEST_CODE = 10
 class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeListener {
 
     private val fadeInAnimationTime = 1500L
-
+    private val permissions = arrayOf(Manifest.permission.CAMERA)
     private var mainPresenter: MainPresenter? = null
     private var mDots: Array<TextView>? = null
     var sliderAdapter: SliderAdapter? = null
@@ -48,8 +52,21 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
             }
 
             if (currentPage == sliderAdapter?.slide_images!!.size - 1) {
-                val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
-                startActivity(intent)
+
+
+                if(ContextCompat.checkSelfPermission(this, permissions.get(0))== PackageManager.PERMISSION_GRANTED){
+
+                    val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+                    startActivity(intent)
+
+                }else{
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(permissions, 10)
+                    }
+                }
+
+
             }
         }
 
@@ -63,6 +80,15 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
 
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode== REQUEST_CODE){
+            if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+                startActivity(intent)
+        }
+        }
+    }
     override fun onDestroy() {
         super.onDestroy()
         mainPresenter?.detach()
@@ -121,13 +147,32 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
     }
 
     private fun initiateCrossFadeIn() {
-        crossfadeIn(viewPagerIntro)
-        crossfadeIn(dotsLayout)
-        crossfadeIn(subtitleFirstTextView)
-        crossfadeIn(subtitleSecondTextView)
-        crossfadeIn(welcome_next_button)
-        val intent = Intent(this, IdentitySignitureActivity::class.java)
-        startActivity(intent)
+
+        val isFirstRun = getSharedPreferences("PREFERENCE", Context.MODE_PRIVATE)
+                .getBoolean("isFirstRun", true)
+
+        if (isFirstRun) {
+            crossfadeIn(viewPagerIntro)
+            crossfadeIn(dotsLayout)
+            crossfadeIn(subtitleFirstTextView)
+            crossfadeIn(subtitleSecondTextView)
+            crossfadeIn(welcome_next_button)
+            //val intent = Intent(this, IdentitySignitureActivity::class.java)
+            //startActivity(intent)
+        }else{
+
+         //   val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+         //   startActivity(intent)
+        }
+
+
+        getSharedPreferences("PREFERENCE", Context.MODE_PRIVATE).edit()
+                .putBoolean("isFirstRun", false).commit()
+
+
+
+
+
     }
 
     private fun initiateCrossFadeOut() {
