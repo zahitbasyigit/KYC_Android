@@ -25,6 +25,10 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
     }
 
+    fun listenSelfieScan() {
+
+    }
+
     fun frontScanCompleted() {
         identityCameraView?.frontScanCompleted()
     }
@@ -33,5 +37,8 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         identityCameraView?.backScanCompleted()
     }
 
+    fun selfieScanCompleted() {
+        identityCameraView?.selfieScanCompleted()
+    }
 
 }

@@ -8,5 +8,6 @@ import com.valensas.kyc_android.BaseView
 interface IdentityCameraView : BaseView {
     fun frontScanCompleted()
     fun backScanCompleted()
+    fun selfieScanCompleted()
 
 }

@@ -20,7 +20,15 @@
         </activity>
         <activity android:name=".facedetection.FaceDetectionActivity" />
         <activity android:name=".qrreader.QRReaderActivity" />
-        <activity android:name=".identityviacamera.IdentityCameraActivity"></activity>
+        <activity
+            android:name=".identityviacamera.IdentityCameraActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".identitysigniture.IdentitySignitureActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape" />
+        <activity android:name=".identityresult.IdentityResultActivity"></activity>
     </application>
 
 </manifest>

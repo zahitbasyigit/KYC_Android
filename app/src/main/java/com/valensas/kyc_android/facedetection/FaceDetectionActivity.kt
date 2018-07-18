@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.google.firebase.FirebaseApp
 import com.valensas.kyc_android.R
+import com.valensas.kyc_android.R.id.cameraView
 import kotlinx.android.synthetic.main.activity_face_detection.*
 
 class FaceDetectionActivity : AppCompatActivity(), FaceDetectionView {
@@ -25,7 +26,7 @@ class FaceDetectionActivity : AppCompatActivity(), FaceDetectionView {
     }
 
     private fun initCamera() {
-        cameraView.addFrameProcessor {
+        /*cameraView.addFrameProcessor {
             faceDetector.process(Frame(
                     data = it.data,
                     rotation = it.rotation,
@@ -33,7 +34,7 @@ class FaceDetectionActivity : AppCompatActivity(), FaceDetectionView {
                     format = it.format,
                     isCameraFacingBack = cameraView.facing == Facing.BACK))
         }
-
+*/
     }
 
     override fun faceDetectionSuccessful(successful: Boolean) {
@@ -43,16 +44,16 @@ class FaceDetectionActivity : AppCompatActivity(), FaceDetectionView {
 
     override fun onResume() {
         super.onResume()
-        cameraView.start()
+        //cameraView.start()
     }
 
     override fun onPause() {
         super.onPause()
-        cameraView.stop()
+        //cameraView.stop()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        cameraView.destroy()
+        //cameraView.destroy()
     }
 }

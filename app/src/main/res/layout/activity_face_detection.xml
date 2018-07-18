@@ -6,24 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.valensas.kyc_android.facedetection.FaceDetectionActivity">
 
-    <FrameLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/faceSuccessfulTextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.otaliastudios.cameraview.CameraView
-            android:id="@+id/cameraView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </com.otaliastudios.cameraview.CameraView>
-
-    </FrameLayout>
 
     <TextView
         android:id="@+id/faceSuccessfulTextView"

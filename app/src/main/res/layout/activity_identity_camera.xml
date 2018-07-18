@@ -7,7 +7,6 @@
     tools:context="com.valensas.kyc_android.identityviacamera.IdentityCameraActivity">
 
     <FrameLayout
-        android:id="@+id/cameraview"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -15,6 +14,12 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <com.otaliastudios.cameraview.CameraView
+            android:id="@+id/cameraView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </com.otaliastudios.cameraview.CameraView>
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -46,6 +51,19 @@
                 app:srcCompat="@drawable/kyc_icon_identity_back"
                 tools:background="@color/colorPrimaryDark" />
 
+            <ImageView
+                android:id="@+id/identityCameraInfoSelfie"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="invisible"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/kyc_icon_face"
+                tools:background="@color/colorPrimaryDark" />
+
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/camerainfoview"
                 android:layout_width="0dp"
@@ -54,7 +72,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="16dp"
-                android:background="@color/cameraInfoColor"
+                android:background="@color/cameraInfoTransparentBackground"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"

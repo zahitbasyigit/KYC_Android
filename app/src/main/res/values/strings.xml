@@ -7,4 +7,30 @@
     <string name="welcome_back_button_text">Geri</string>
     <string name="welcome_next_button_text">Devam</string>
     <string name="welcome_start_button_text">Başla</string>
+
+    <string name="identityCameraInfoFrontText">Telefonunuzu dik tutup kimliğinizin ön tarafını \n ekrandaki gibi alana yerleştirin.</string>
+    <string name="identityCameraInfoBackText">Telefonunuzu dik tutup kimliğinizin arka tarafını \n ekrandaki gibi alana yerleştirin.</string>
+    <string name="identityCameraInfoSelfieText">Yüz taraması için yüzünüzü net gözükecek şekilde \n ekrandaki alana yaklaştırın</string>
+    <string name="identityCameraInfoFrontOK">Tamam</string>
+
+    <!-- Identity Signiture -->
+    <string name="identitySignitureRetryButton">Tekrar</string>
+    <string name="identitySignitureContinueButton">Devam</string>
+    <string name="identitySignitureSpinnerText">Bilgileriniz işleniyor...</string>
+
+    <!--Identity Signiture Dialog-->
+    <string name="identitySignitureAlertTitle">İmza Onay</string>
+    <string name="identitySignitureAlertText">Telefonunuzu yan çeviriniz ve kimliğinizde \n bulunan imzanın aynısını ekrana çiziniz.</string>
+    <string name="identitySignitureAlertPositiveButton">Tamam</string>
+
+    <!--Identity Results-->
+    <string name="identityResultOKButton">Tamam</string>
+    <string name="identityResultBackButton">Geri</string>
+    <string name="identityResultTitleText">Kayıt Bilgileri</string>
+    <string name="identityResultMatchingText">eşleşme</string>
+    <string name="identityResultName">ADI</string>
+    <string name="identityResultSurname">SOYADI</string>
+    <string name="identityResultBirthdate">DOĞUM TARİHİ</string>
+    <string name="identityResultTCKN">KİMLİK NUMARASI</string>
+
 </resources>

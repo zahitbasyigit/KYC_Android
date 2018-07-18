@@ -8,6 +8,10 @@
     <color name="lowerright">#AA3290</color>
     <color name="transparentwhite">#80FFFFFF</color>
     <color name="white">#ffffff</color>
+    <color name="signitureButtonColor">#67186D</color>
+    <color name="cameraInfoTransparentBackground">#32000000</color>
+    <color name="signitureSpinnerTransparentBackground">#C8000000</color>
+    <color name="identityResultBackground">#4A334D</color>
 
 
 </resources>
