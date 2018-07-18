@@ -1,6 +1,8 @@
 package com.valensas.kyc_android.identitysigniture
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -10,7 +12,9 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.valensas.kyc_android.R
+import com.valensas.kyc_android.identityresult.IdentityResultActivity
 import kotlinx.android.synthetic.main.activity_identity_signiture.*
+import java.io.ByteArrayOutputStream
 
 
 class IdentitySignitureActivity : AppCompatActivity() {
@@ -31,6 +35,9 @@ class IdentitySignitureActivity : AppCompatActivity() {
             identitySignitureRetryButton.setTextColor(Color.BLACK)
             identitySignitureContinueButton.setTextColor(Color.BLACK)
             spinnerView.visibility = View.VISIBLE
+            intent = Intent(this, IdentityResultActivity::class.java)
+            putImageToIntent("DrawnSigniture", intent, identitySignitureDrawView.bitmap)
+            startActivity(intent)
         })
     }
 
@@ -63,5 +70,14 @@ class IdentitySignitureActivity : AppCompatActivity() {
         positiveButton.layoutParams = positiveButtonLL
 
         dialog.window.setBackgroundDrawableResource(R.drawable.round_dialog_background)
+    }
+
+    private fun putImageToIntent(name: String, intent: Intent, bitmap: Bitmap?) {
+        if (bitmap != null) {
+            val bs = ByteArrayOutputStream()
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap,120,120,false)
+            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 50, bs)
+            intent.putExtra(name, bs.toByteArray())
+        }
     }
 }

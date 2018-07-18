@@ -12,7 +12,7 @@ import android.view.View
  */
 class IdentitySignitureDrawView(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private var paint: Paint? = null
-    private var bitmap: Bitmap? = null
+    var bitmap: Bitmap? = null
     private var canvas: Canvas? = null
 
     private var previousX: Float? = null

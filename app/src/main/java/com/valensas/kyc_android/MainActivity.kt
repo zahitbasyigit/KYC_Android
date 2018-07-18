@@ -13,16 +13,12 @@ import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import com.budiyev.android.codescanner.*
-import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import com.valensas.kyc_android.identityviacamera.IdentityCameraActivity
-import com.valensas.kyc_android.qrreader.QRReaderActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import org.w3c.dom.Text
-    private const val REQUEST_CODE = 10
+
+private const val REQUEST_CODE = 10
+
 class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeListener {
 
     private val fadeInAnimationTime = 1500L
@@ -45,50 +41,22 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
 
         addDotsIndicator(0)
         viewPagerIntro.addOnPageChangeListener(this)
-
-        welcome_next_button.setOnClickListener {
-            if (currentPage!! < sliderAdapter?.slide_images!!.size - 1) {
-                viewPagerIntro.setCurrentItem(currentPage!! + 1)
-            }
-
-            if (currentPage == sliderAdapter?.slide_images!!.size - 1) {
-
-
-                if(ContextCompat.checkSelfPermission(this, permissions.get(0))== PackageManager.PERMISSION_GRANTED){
-
-                    val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
-                    startActivity(intent)
-
-                }else{
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(permissions, 10)
-                    }
-                }
-
-
-            }
-        }
-
-        welcome_back_button.setOnClickListener {
-            if (currentPage!! < sliderAdapter?.slide_images!!.size) {
-                viewPagerIntro.setCurrentItem(currentPage!! - 1)
-            }
-        }
-
+        initButtonListeners()
         initiateCrossFadeOut()
 
     }
 
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode== REQUEST_CODE){
-            if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+        if (requestCode == REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
                 startActivity(intent)
-        }
+            }
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
         mainPresenter?.detach()
@@ -147,7 +115,6 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
     }
 
     private fun initiateCrossFadeIn() {
-
         val isFirstRun = getSharedPreferences("PREFERENCE", Context.MODE_PRIVATE)
                 .getBoolean("isFirstRun", true)
 
@@ -157,20 +124,14 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
             crossfadeIn(subtitleFirstTextView)
             crossfadeIn(subtitleSecondTextView)
             crossfadeIn(welcome_next_button)
-            //val intent = Intent(this, IdentitySignitureActivity::class.java)
-            //startActivity(intent)
-        }else{
-
-         //   val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
-         //   startActivity(intent)
+        } else {
+            val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+            startActivity(intent)
         }
 
 
         getSharedPreferences("PREFERENCE", Context.MODE_PRIVATE).edit()
                 .putBoolean("isFirstRun", false).commit()
-
-
-
 
 
     }
@@ -203,5 +164,37 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
                             initiateCrossFadeIn()
                     }
                 })
+    }
+
+    private fun initButtonListeners() {
+        welcome_next_button.setOnClickListener {
+            if (currentPage!! < sliderAdapter?.slide_images!!.size - 1) {
+                viewPagerIntro.setCurrentItem(currentPage!! + 1)
+            }
+
+            if (currentPage == sliderAdapter?.slide_images!!.size - 1) {
+
+
+                if (ContextCompat.checkSelfPermission(this, permissions.get(0)) == PackageManager.PERMISSION_GRANTED) {
+
+                    val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+                    startActivity(intent)
+
+                } else {
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(permissions, 10)
+                    }
+                }
+
+
+            }
+        }
+
+        welcome_back_button.setOnClickListener {
+            if (currentPage!! < sliderAdapter?.slide_images!!.size) {
+                viewPagerIntro.setCurrentItem(currentPage!! - 1)
+            }
+        }
     }
 }
