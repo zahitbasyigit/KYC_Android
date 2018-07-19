@@ -3,6 +3,7 @@ package com.valensas.kyc_android.identitysigniture
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -13,15 +14,24 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identityresult.IdentityResultActivity
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_identity_signiture.*
 import java.io.ByteArrayOutputStream
 
 
 class IdentitySignitureActivity : AppCompatActivity() {
 
+    private var faceSelfieBitmap: Bitmap? = null
+    private var faceScannedBitmap: Bitmap? = null
+    private var signitureScannedBitmap: Bitmap? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identity_signiture)
+
+        faceSelfieBitmap = loadImageFromBundle("SelfieFace")
+
         initInfoDialog()
         initButtonListeners()
     }
@@ -37,6 +47,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
             spinnerView.visibility = View.VISIBLE
             intent = Intent(this, IdentityResultActivity::class.java)
             putImageToIntent("DrawnSigniture", intent, identitySignitureDrawView.bitmap)
+            putImageToIntent("SelfieFace", intent, faceScannedBitmap)
             startActivity(intent)
         })
     }
@@ -75,9 +86,16 @@ class IdentitySignitureActivity : AppCompatActivity() {
     private fun putImageToIntent(name: String, intent: Intent, bitmap: Bitmap?) {
         if (bitmap != null) {
             val bs = ByteArrayOutputStream()
-            val scaledBitmap = Bitmap.createScaledBitmap(bitmap,120,120,false)
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false)
             scaledBitmap.compress(Bitmap.CompressFormat.PNG, 50, bs)
             intent.putExtra(name, bs.toByteArray())
         }
+    }
+
+    private fun loadImageFromBundle(name: String): Bitmap? {
+        if (getIntent().hasExtra(name)) {
+            return BitmapFactory.decodeByteArray(getIntent().getByteArrayExtra(name), 0, getIntent().getByteArrayExtra(name).size)
+        }
+        return null
     }
 }

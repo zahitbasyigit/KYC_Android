@@ -1,6 +1,7 @@
 package com.valensas.kyc_android.identityviacamera
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -9,6 +10,7 @@ import com.otaliastudios.cameraview.Facing
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_identity_camera.*
+import java.io.ByteArrayOutputStream
 
 class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
 
@@ -44,8 +46,9 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
             identityCameraInfoImage.visibility = View.GONE
             identityCameraInfoText.visibility = View.GONE
             identityCameraInfoOKButton.visibility = View.GONE
-            identityCameraPresenter?.listenFrontIdentityScan()
-            flowState = state.STATE_FRONT_SCAN
+            identityCameraPresenter?.listenSelfieScan()
+            flowState = state.STATE_SELFIE_SCAN
+            cameraView.facing = Facing.FRONT
 
         }
 
@@ -97,10 +100,13 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         cameraView.facing = Facing.FRONT
     }
 
-    override fun selfieScanCompleted() {
+    override fun selfieScanCompleted(faceBitmap: Bitmap) {
         flowState = state.STATE_COMPLETE
         identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
+
+        //Signature Intent
         intent = Intent(this, IdentitySignitureActivity::class.java)
+        putImageToIntent("SelfieFace", intent, faceBitmap)
         startActivity(intent)
     }
 
@@ -108,14 +114,6 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         return cameraView
     }
 
-    override fun onBackPressed() {
-        if (flowState == state.STATE_FRONT_SCAN)
-            frontScanCompleted()
-        else if (flowState == state.STATE_BACK_SCAN)
-            backScanCompleted()
-        else if (flowState == state.STATE_SELFIE_SCAN)
-            selfieScanCompleted()
-    }
 
     override fun onResume() {
         super.onResume()
@@ -130,6 +128,15 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
     override fun onDestroy() {
         super.onDestroy()
         cameraView?.destroy()
+    }
+
+    private fun putImageToIntent(name: String, intent: Intent, bitmap: Bitmap?) {
+        if (bitmap != null) {
+            val bs = ByteArrayOutputStream()
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false)
+            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 50, bs)
+            intent.putExtra(name, bs.toByteArray())
+        }
     }
 
     companion object {

@@ -1,5 +1,6 @@
 package com.valensas.kyc_android.identityviacamera
 
+import android.graphics.Bitmap
 import com.otaliastudios.cameraview.Facing
 import com.otaliastudios.cameraview.FrameProcessor
 import com.valensas.kyc_android.BasePresenter
@@ -61,26 +62,23 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         }
     }
 
-    fun textDetectionSuccessful(text: String, successful: Boolean) {
-        if (successful) {
-            println(text)
-            identityCameraView?.getCameraView()?.clearFrameProcessors()
-            identityCameraView?.frontScanCompleted()
-        }
+    fun textDetectionSuccessful(text: String) {
+        println(text)
+        identityCameraView?.getCameraView()?.clearFrameProcessors()
+        identityCameraView?.frontScanCompleted()
+
     }
 
-    fun qrReadSuccessful(result: String?, successful: Boolean) {
-        if (successful && result != null) {
+    fun qrReadSuccessful(result: String?) {
+        if (result != null) {
             println(result)
             identityCameraView?.getCameraView()?.clearFrameProcessors()
             identityCameraView?.backScanCompleted()
         }
     }
 
-    fun faceDetectionSuccessful(successful: Boolean) {
-        if (successful) {
-            identityCameraView?.getCameraView()?.clearFrameProcessors()
-            identityCameraView?.selfieScanCompleted()
-        }
+    fun faceDetectionSuccessful(faceBitmap: Bitmap) {
+        identityCameraView?.getCameraView()?.clearFrameProcessors()
+        identityCameraView?.selfieScanCompleted(faceBitmap)
     }
 }

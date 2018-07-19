@@ -13,10 +13,12 @@ class IdentityResultActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identity_result)
-        loadImageFromBundle("DrawnSigniture", identityResultSignitureImage)
+        loadImageFromBundleToView("DrawnSigniture", identityResultSignitureImage)
+        loadImageFromBundleToView("SelfieFace", identityResultSelfieImage)
     }
 
-    private fun loadImageFromBundle(name: String, imageView: CircleImageView) {
+
+    private fun loadImageFromBundleToView(name: String, imageView: CircleImageView) {
         if (getIntent().hasExtra(name)) {
             imageView.setImageBitmap(BitmapFactory.decodeByteArray(
                     getIntent().getByteArrayExtra(name), 0, getIntent().getByteArrayExtra(name).size)

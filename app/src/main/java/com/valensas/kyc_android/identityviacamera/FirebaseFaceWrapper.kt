@@ -22,7 +22,7 @@ internal class FirebaseFaceWrapper {
                 .setLandmarkType(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
                 .setClassificationType(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
                 .setMinFaceSize(0.15f)
-                .setTrackingEnabled(true)
+                .setTrackingEnabled(false)
                 .build()
     }
 
