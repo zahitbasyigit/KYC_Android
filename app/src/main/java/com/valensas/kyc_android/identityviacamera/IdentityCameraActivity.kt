@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.Facing
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
@@ -12,7 +13,6 @@ import kotlinx.android.synthetic.main.activity_identity_camera.*
 class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
 
     private var identityCameraPresenter: IdentityCameraPresenter? = null
-    private var flowState = state.STATE_FRONT_START
 
     enum class state {
         STATE_FRONT_START,
@@ -45,6 +45,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
             identityCameraInfoOKButton.visibility = View.GONE
             identityCameraPresenter?.listenFrontIdentityScan()
             flowState = state.STATE_FRONT_SCAN
+
         }
 
         )
@@ -101,6 +102,9 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         startActivity(intent)
     }
 
+    override fun getCameraView(): CameraView {
+        return cameraView
+    }
 
     override fun onBackPressed() {
         if (flowState == state.STATE_FRONT_SCAN)
@@ -124,6 +128,11 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
     override fun onDestroy() {
         super.onDestroy()
         cameraView?.destroy()
+    }
+
+    companion object {
+        var flowState = state.STATE_FRONT_START
+
     }
 
 

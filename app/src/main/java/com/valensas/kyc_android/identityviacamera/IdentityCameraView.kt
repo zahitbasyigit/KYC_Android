@@ -1,5 +1,6 @@
 package com.valensas.kyc_android.identityviacamera
 
+import com.otaliastudios.cameraview.CameraView
 import com.valensas.kyc_android.BaseView
 
 /**
@@ -9,5 +10,6 @@ interface IdentityCameraView : BaseView {
     fun frontScanCompleted()
     fun backScanCompleted()
     fun selfieScanCompleted()
+    fun getCameraView(): CameraView
 
 }
