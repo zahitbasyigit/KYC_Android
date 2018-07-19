@@ -17,14 +17,14 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector
  */
 internal class FirebaseQRWrapper {
 
-        private val qrReaderOptions: FirebaseVisionBarcodeDetectorOptions by lazy {
-            FirebaseVisionBarcodeDetectorOptions.Builder()
-                    .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
-                    .build()
-        }
+    private val qrReaderOptions: FirebaseVisionBarcodeDetectorOptions by lazy {
+        FirebaseVisionBarcodeDetectorOptions.Builder()
+                .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
+                .build()
+    }
 
     private val qrDetector: FirebaseVisionBarcodeDetector by lazy {
-        FirebaseVision.getInstance().visionBarcodeDetector
+        FirebaseVision.getInstance().getVisionBarcodeDetector(qrReaderOptions)
     }
 
     fun process(image: FirebaseVisionImage,
