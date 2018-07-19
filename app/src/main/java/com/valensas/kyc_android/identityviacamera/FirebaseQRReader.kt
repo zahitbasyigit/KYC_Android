@@ -17,8 +17,7 @@ class FirebaseQRReader(val identityCameraPresenter: IdentityCameraPresenter?) {
 
 
     fun process(frame: Frame) {
-        if (IdentityCameraActivity.flowState == IdentityCameraActivity.state.STATE_BACK_SCAN)
-            detectQRIn(frame)
+        detectQRIn(frame)
     }
 
     private fun detectQRIn(frame: Frame) {
@@ -26,7 +25,8 @@ class FirebaseQRReader(val identityCameraPresenter: IdentityCameraPresenter?) {
             firebaseQRWrapper.process(
                     image = convertFrameToImage(frame),
                     onSuccess = {
-                        if (it.isNotEmpty()) {
+                        Log.d("Scanner", "Scanning Barcodes")
+                        if (it.isNotEmpty() && IdentityCameraActivity.flowState == IdentityCameraActivity.state.STATE_BACK_SCAN) {
                             val rawValue = it[0].rawValue
                             identityCameraPresenter?.qrReadSuccessful(rawValue, true)
                         }

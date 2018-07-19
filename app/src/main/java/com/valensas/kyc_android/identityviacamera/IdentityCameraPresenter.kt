@@ -16,6 +16,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var identityCameraView: IdentityCameraView? = null
     private var textRecognizer = com.valensas.kyc_android.facedetection.FirebaseTextRecognizer(this)
     private var qrReader = FirebaseQRReader(this)
+    private var faceDetector = FirebaseFaceDetection(this)
 
 
     override fun attach(view: IdentityCameraView) {
@@ -50,11 +51,14 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     }
 
     fun listenSelfieScan() {
-
-    }
-
-    fun selfieScanCompleted() {
-        identityCameraView?.selfieScanCompleted()
+        identityCameraView?.getCameraView()?.addFrameProcessor {
+            faceDetector.process(Frame(
+                    data = it.data,
+                    rotation = it.rotation,
+                    size = Size(it.size.width, it.size.height),
+                    format = it.format,
+                    isCameraFacingBack = identityCameraView?.getCameraView()?.facing == Facing.BACK))
+        }
     }
 
     fun textDetectionSuccessful(text: String, successful: Boolean) {
@@ -70,6 +74,13 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
             println(result)
             identityCameraView?.getCameraView()?.clearFrameProcessors()
             identityCameraView?.backScanCompleted()
+        }
+    }
+
+    fun faceDetectionSuccessful(successful: Boolean) {
+        if (successful) {
+            identityCameraView?.getCameraView()?.clearFrameProcessors()
+            identityCameraView?.selfieScanCompleted()
         }
     }
 }

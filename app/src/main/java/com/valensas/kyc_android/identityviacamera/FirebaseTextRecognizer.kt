@@ -17,8 +17,7 @@ class FirebaseTextRecognizer(val identityCameraPresenter: IdentityCameraPresente
 
 
     fun process(frame: Frame) {
-        if (IdentityCameraActivity.flowState == IdentityCameraActivity.state.STATE_FRONT_SCAN)
-            detectTextsIn(frame)
+        detectTextsIn(frame)
     }
 
     private fun detectTextsIn(frame: Frame) {
@@ -26,18 +25,16 @@ class FirebaseTextRecognizer(val identityCameraPresenter: IdentityCameraPresente
             firebaseTextRecognitionWrapper.process(
                     image = convertFrameToImage(frame),
                     onSuccess = {
-                        println("PROCESSING...")
-                        /*
+                        Log.d("Scanner", "Scanning Texts")
+                        if (IdentityCameraActivity.flowState == IdentityCameraActivity.state.STATE_FRONT_SCAN) {
+                            /*
                         for (block in it.blocks)
                             for (lines in block.lines)
                                 for (elements in lines.elements)
                                     Log.d("Processor", elements.text)
                         */
-                        if (true)
                             identityCameraPresenter?.textDetectionSuccessful(it.toString(), true)
-                        else
-                            identityCameraPresenter?.textDetectionSuccessful(it.toString(), false)
-
+                        }
                     },
                     onError = {
                         identityCameraPresenter?.textDetectionSuccessful(it.toString(), false)

@@ -1,4 +1,4 @@
-package com.valensas.kyc_android.facedetection
+package com.valensas.kyc_android.identityviacamera
 
 import android.util.Log
 import com.google.firebase.ml.vision.FirebaseVision
@@ -9,28 +9,31 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
-import com.google.firebase.ml.vision.text.FirebaseVisionText
-import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector
+import com.valensas.kyc_android.facedetection.FirebaseQRWrapper
 
 /**
- * Created by Zahit on 16-Jul-18.
+ * Created by Zahit on 19-Jul-18.
  */
-internal class FirebaseQRWrapper {
+internal class FirebaseFaceWrapper {
 
-    private val qrReaderOptions: FirebaseVisionBarcodeDetectorOptions by lazy {
-        FirebaseVisionBarcodeDetectorOptions.Builder()
-                .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
+    private val faceDetectorOptions: FirebaseVisionFaceDetectorOptions by lazy {
+        FirebaseVisionFaceDetectorOptions.Builder()
+                .setModeType(FirebaseVisionFaceDetectorOptions.ACCURATE_MODE)
+                .setLandmarkType(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
+                .setClassificationType(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
+                .setMinFaceSize(0.15f)
+                .setTrackingEnabled(true)
                 .build()
     }
 
-    private val qrDetector: FirebaseVisionBarcodeDetector by lazy {
-        FirebaseVision.getInstance().getVisionBarcodeDetector(qrReaderOptions)
+    private val faceDetector: FirebaseVisionFaceDetector by lazy {
+        FirebaseVision.getInstance().getVisionFaceDetector(faceDetectorOptions)
     }
 
     fun process(image: FirebaseVisionImage,
-                onSuccess: (MutableList<FirebaseVisionBarcode>) -> Unit,
+                onSuccess: (MutableList<FirebaseVisionFace>) -> Unit,
                 onError: (Exception) -> Unit) {
-        qrDetector.detectInImage(image)
+        faceDetector.detectInImage(image)
                 .addOnSuccessListener {
                     onSuccess(it)
                 }
@@ -42,6 +45,6 @@ internal class FirebaseQRWrapper {
     }
 
     companion object {
-        private val TAG = FirebaseQRWrapper::class.java.simpleName
+        private val TAG = FirebaseFaceWrapper::class.java.simpleName
     }
 }

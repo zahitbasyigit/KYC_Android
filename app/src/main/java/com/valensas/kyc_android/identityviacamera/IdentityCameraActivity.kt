@@ -20,7 +20,8 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         STATE_BACK_START,
         STATE_BACK_SCAN,
         STATE_SELFIE_START,
-        STATE_SELFIE_SCAN
+        STATE_SELFIE_SCAN,
+        STATE_COMPLETE
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,6 +98,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
     }
 
     override fun selfieScanCompleted() {
+        flowState = state.STATE_COMPLETE
         identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
         intent = Intent(this, IdentitySignitureActivity::class.java)
         startActivity(intent)
