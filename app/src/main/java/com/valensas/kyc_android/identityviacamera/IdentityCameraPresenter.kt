@@ -1,5 +1,6 @@
 package com.valensas.kyc_android.identityviacamera
 
+import android.R
 import android.graphics.Bitmap
 import com.otaliastudios.cameraview.Facing
 import com.otaliastudios.cameraview.FrameProcessor
@@ -18,7 +19,6 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var textRecognizer = com.valensas.kyc_android.facedetection.FirebaseTextRecognizer(this)
     private var qrReader = FirebaseQRReader(this)
     private var faceDetector = FirebaseFaceDetection(this)
-
 
     override fun attach(view: IdentityCameraView) {
         identityCameraView = view
@@ -63,9 +63,9 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     }
 
     fun textDetectionSuccessful(text: String) {
-        println(text)
         identityCameraView?.getCameraView()?.clearFrameProcessors()
         identityCameraView?.frontScanCompleted()
+        textRecognizer.firebaseTextRecognitionWrapper.textDetector.close()
 
     }
 
@@ -74,11 +74,13 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
             println(result)
             identityCameraView?.getCameraView()?.clearFrameProcessors()
             identityCameraView?.backScanCompleted()
+            qrReader.firebaseQRWrapper.qrDetector.close()
         }
     }
 
     fun faceDetectionSuccessful(faceBitmap: Bitmap) {
         identityCameraView?.getCameraView()?.clearFrameProcessors()
         identityCameraView?.selfieScanCompleted(faceBitmap)
+        faceDetector.firebaseFaceWrapper.faceDetector.close()
     }
 }

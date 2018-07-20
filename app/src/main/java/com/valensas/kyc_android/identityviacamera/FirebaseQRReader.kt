@@ -13,7 +13,7 @@ import com.valensas.kyc_android.identityviacamera.IdentityCameraPresenter
  */
 class FirebaseQRReader(val identityCameraPresenter: IdentityCameraPresenter?) {
 
-    private val firebaseQRWrapper = FirebaseQRWrapper()
+    val firebaseQRWrapper = FirebaseQRWrapper()
 
 
     fun process(frame: Frame) {

@@ -46,9 +46,8 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
             identityCameraInfoImage.visibility = View.GONE
             identityCameraInfoText.visibility = View.GONE
             identityCameraInfoOKButton.visibility = View.GONE
-            identityCameraPresenter?.listenSelfieScan()
-            flowState = state.STATE_SELFIE_SCAN
-            cameraView.facing = Facing.FRONT
+            identityCameraPresenter?.listenFrontIdentityScan()
+            flowState = state.STATE_FRONT_SCAN
 
         }
 
@@ -107,6 +106,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         //Signature Intent
         intent = Intent(this, IdentitySignitureActivity::class.java)
         putImageToIntent("SelfieFace", intent, faceBitmap)
+        println(faceBitmap)
         startActivity(intent)
     }
 

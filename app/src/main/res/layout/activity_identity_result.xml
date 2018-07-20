@@ -69,6 +69,7 @@
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginEnd="32dp"
+            android:rotation="-90"
             android:src="@drawable/kyc_tutorial_face"
             app:civ_border_color="#FFFFFFFF"
             app:civ_border_width="1dp"

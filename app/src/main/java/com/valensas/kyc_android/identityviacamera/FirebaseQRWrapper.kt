@@ -11,28 +11,36 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Created by Zahit on 16-Jul-18.
  */
-internal class FirebaseQRWrapper {
+class FirebaseQRWrapper {
+    val shouldProcess = AtomicBoolean(true)
 
-    private val qrReaderOptions: FirebaseVisionBarcodeDetectorOptions by lazy {
+    val qrReaderOptions: FirebaseVisionBarcodeDetectorOptions by lazy {
         FirebaseVisionBarcodeDetectorOptions.Builder()
                 .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
                 .build()
     }
 
-    private val qrDetector: FirebaseVisionBarcodeDetector by lazy {
+    val qrDetector: FirebaseVisionBarcodeDetector by lazy {
         FirebaseVision.getInstance().getVisionBarcodeDetector(qrReaderOptions)
     }
 
     fun process(image: FirebaseVisionImage,
                 onSuccess: (MutableList<FirebaseVisionBarcode>) -> Unit,
                 onError: (Exception) -> Unit) {
+        if (!shouldProcess.get())
+            return
+
+        shouldProcess.set(false)
+
         qrDetector.detectInImage(image)
                 .addOnSuccessListener {
                     onSuccess(it)
+                    shouldProcess.set(true)
                 }
                 .addOnFailureListener {
                     onError(it)

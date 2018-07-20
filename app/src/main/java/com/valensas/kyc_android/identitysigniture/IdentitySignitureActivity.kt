@@ -47,7 +47,8 @@ class IdentitySignitureActivity : AppCompatActivity() {
             spinnerView.visibility = View.VISIBLE
             intent = Intent(this, IdentityResultActivity::class.java)
             putImageToIntent("DrawnSigniture", intent, identitySignitureDrawView.bitmap)
-            putImageToIntent("SelfieFace", intent, faceScannedBitmap)
+            putImageToIntent("SelfieFace", intent, faceSelfieBitmap)
+            println(faceScannedBitmap)
             startActivity(intent)
         })
     }

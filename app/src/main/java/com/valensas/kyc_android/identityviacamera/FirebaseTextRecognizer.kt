@@ -13,7 +13,7 @@ import com.valensas.kyc_android.identityviacamera.IdentityCameraPresenter
  */
 class FirebaseTextRecognizer(val identityCameraPresenter: IdentityCameraPresenter?) {
 
-    private val firebaseTextRecognitionWrapper = FirebaseTextRecognitionWrapper()
+    val firebaseTextRecognitionWrapper = FirebaseTextRecognitionWrapper()
 
 
     fun process(frame: Frame) {
