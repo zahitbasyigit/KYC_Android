@@ -1,8 +1,8 @@
-package com.valensas.kyc_android.identityviacamera
+package com.valensas.kyc_android.identitycamera.view
 
 import android.graphics.Bitmap
 import com.otaliastudios.cameraview.CameraView
-import com.valensas.kyc_android.BaseView
+import com.valensas.kyc_android.base.BaseView
 
 /**
  * Created by Zahit on 17-Jul-18.

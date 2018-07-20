@@ -1,4 +1,4 @@
-package com.valensas.kyc_android
+package com.valensas.kyc_android.welcome
 
 import android.Manifest
 import android.animation.Animator
@@ -14,7 +14,8 @@ import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.view.View
 import android.widget.TextView
-import com.valensas.kyc_android.identityviacamera.IdentityCameraActivity
+import com.valensas.kyc_android.R
+import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 private const val REQUEST_CODE = 10

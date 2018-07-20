@@ -1,29 +1,37 @@
-package com.valensas.kyc_android.facedetection
+package com.valensas.kyc_android.identitycamera.model
 
+import android.util.Log
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.otaliastudios.cameraview.Frame
+import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
+import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
 
 /**
  * Created by Zahit on 16-Jul-18.
  */
-class FaceDetector(val faceDetectionPresenter: FaceDetectionPresenter?) {
+class FirebaseQRReader(val identityCameraPresenter: IdentityCameraPresenter?) {
 
-    private val firebaseFaceDetectorWrapper = FirebaseFaceDetectorWrapper()
+    val firebaseQRWrapper = FirebaseQRWrapper()
+
 
     fun process(frame: Frame) {
-        detectFacesIn(frame)
+        detectQRIn(frame)
     }
 
-    private fun detectFacesIn(frame: Frame) {
+    private fun detectQRIn(frame: Frame) {
         frame.data?.let {
-            firebaseFaceDetectorWrapper.process(
+            firebaseQRWrapper.process(
                     image = convertFrameToImage(frame),
                     onSuccess = {
-                        faceDetectionPresenter?.faceDetectionSuccessful(it.size != 0)
+                        Log.d("Scanner", "Scanning Barcodes")
+                        if (it.isNotEmpty() && IdentityCameraActivity.flowState == IdentityCameraActivity.state.STATE_BACK_SCAN) {
+                            val rawValue = it[0].rawValue
+                            identityCameraPresenter?.qrReadSuccessful(rawValue)
+                        }
                     },
                     onError = {
-                        faceDetectionPresenter?.faceDetectionSuccessful(false)
+                        //Nothing
                     })
         }
     }
@@ -40,6 +48,6 @@ class FaceDetector(val faceDetectionPresenter: FaceDetectionPresenter?) {
                     .build()
 
     companion object {
-        private const val RIGHT_ANGLE = 90
+        private const val RIGHT_ANGLE = 180
     }
 }

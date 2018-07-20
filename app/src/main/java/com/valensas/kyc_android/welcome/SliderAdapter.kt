@@ -1,4 +1,4 @@
-package com.valensas.kyc_android
+package com.valensas.kyc_android.welcome
 
 import android.content.Context
 import android.support.constraint.ConstraintLayout
@@ -8,11 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.valensas.kyc_android.R
 
 class SliderAdapter(context:Context):PagerAdapter() {
     internal var context: Context
     internal lateinit var layoutinflater:LayoutInflater
-    public var slide_images = intArrayOf(R.drawable.kyc_tutorial_rocket,  R.drawable.kyc_tutorial_id, R.drawable.kyc_tutorial_face, R.drawable.kyc_tutorial_signature)
+    public var slide_images = intArrayOf(R.drawable.kyc_tutorial_rocket, R.drawable.kyc_tutorial_id, R.drawable.kyc_tutorial_face, R.drawable.kyc_tutorial_signature)
     var slide_texts = arrayOf<String>(context.getString(R.string.welcome_1),context.getString(R.string.welcome_2),context.getString(R.string.welcome_3),context.getString(R.string.welcome_4))
 
     override fun getCount(): Int {

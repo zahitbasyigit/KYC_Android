@@ -14,7 +14,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identityresult.IdentityResultActivity
-import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_identity_signiture.*
 import java.io.ByteArrayOutputStream
 

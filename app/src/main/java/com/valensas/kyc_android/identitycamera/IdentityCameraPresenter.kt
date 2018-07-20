@@ -1,15 +1,18 @@
-package com.valensas.kyc_android.identityviacamera
+package com.valensas.kyc_android.identitycamera
 
 import android.graphics.Bitmap
-import com.valensas.kyc_android.BasePresenter
-import com.valensas.kyc_android.facedetection.FirebaseQRReader
+import com.valensas.kyc_android.base.BasePresenter
+import com.valensas.kyc_android.identitycamera.model.FirebaseQRReader
+import com.valensas.kyc_android.identitycamera.model.FirebaseFaceDetection
+import com.valensas.kyc_android.identitycamera.model.FirebaseTextRecognizer
+import com.valensas.kyc_android.identitycamera.view.IdentityCameraView
 
 /**
  * Created by Zahit on 17-Jul-18.
  */
 class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var identityCameraView: IdentityCameraView? = null
-    private var textRecognizer = com.valensas.kyc_android.facedetection.FirebaseTextRecognizer(this)
+    private var textRecognizer = FirebaseTextRecognizer(this)
     private var qrReader = FirebaseQRReader(this)
     private var faceDetector = FirebaseFaceDetection(this)
 
