@@ -2,6 +2,7 @@ package com.valensas.kyc_android.identityviacamera
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View

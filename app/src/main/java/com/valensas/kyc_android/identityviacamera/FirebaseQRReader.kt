@@ -1,10 +1,9 @@
 package com.valensas.kyc_android.facedetection
 
 import android.util.Log
-import android.widget.Toast
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
-import com.google.firebase.ml.vision.face.FirebaseVisionFace
+import com.otaliastudios.cameraview.Frame
 import com.valensas.kyc_android.identityviacamera.IdentityCameraActivity
 import com.valensas.kyc_android.identityviacamera.IdentityCameraPresenter
 

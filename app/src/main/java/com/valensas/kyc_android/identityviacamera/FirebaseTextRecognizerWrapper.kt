@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Created by Zahit on 16-Jul-18.
  */
-class FirebaseTextRecognitionWrapper {
+class FirebaseTextRecognizerWrapper {
 
     val shouldProcess = AtomicBoolean(true)
 
@@ -40,6 +40,6 @@ class FirebaseTextRecognitionWrapper {
 
 
     companion object {
-        private val TAG = FirebaseTextRecognitionWrapper::class.java.simpleName
+        private val TAG = FirebaseTextRecognizerWrapper::class.java.simpleName
     }
 }

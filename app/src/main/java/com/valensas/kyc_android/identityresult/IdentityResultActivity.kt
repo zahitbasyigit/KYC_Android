@@ -18,7 +18,7 @@ class IdentityResultActivity : AppCompatActivity() {
     }
 
 
-    private fun loadImageFromBundleToView(name: String, imageView: CircleImageView) {
+    private fun loadImageFromBundleToView(name: String, imageView: ImageView) {
         if (getIntent().hasExtra(name)) {
             val bitmap = BitmapFactory.decodeByteArray(getIntent().getByteArrayExtra(name), 0, getIntent().getByteArrayExtra(name).size)
             imageView.setImageBitmap(bitmap)

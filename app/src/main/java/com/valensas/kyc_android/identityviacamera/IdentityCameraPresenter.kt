@@ -1,15 +1,8 @@
 package com.valensas.kyc_android.identityviacamera
 
-import android.R
 import android.graphics.Bitmap
-import com.otaliastudios.cameraview.Facing
-import com.otaliastudios.cameraview.FrameProcessor
 import com.valensas.kyc_android.BasePresenter
 import com.valensas.kyc_android.facedetection.FirebaseQRReader
-import com.valensas.kyc_android.facedetection.Frame
-import com.valensas.kyc_android.facedetection.Size
-import com.valensas.kyc_android.identityviacamera.IdentityCameraActivity.state.STATE_FRONT_START
-import com.valensas.kyc_android.qrreader.QRReaderActivity
 
 /**
  * Created by Zahit on 17-Jul-18.
@@ -31,34 +24,19 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
     fun listenFrontIdentityScan() {
         identityCameraView?.getCameraView()?.addFrameProcessor {
-            textRecognizer.process(Frame(
-                    data = it.data,
-                    rotation = it.rotation,
-                    size = Size(it.size.width, it.size.height),
-                    format = it.format,
-                    isCameraFacingBack = identityCameraView?.getCameraView()?.facing == Facing.BACK))
+            textRecognizer.process(it)
         }
     }
 
     fun listenBackIdentityScan() {
         identityCameraView?.getCameraView()?.addFrameProcessor {
-            qrReader.process(Frame(
-                    data = it.data,
-                    rotation = it.rotation,
-                    size = Size(it.size.width, it.size.height),
-                    format = it.format,
-                    isCameraFacingBack = identityCameraView?.getCameraView()?.facing == Facing.BACK))
+            qrReader.process(it)
         }
     }
 
     fun listenSelfieScan() {
         identityCameraView?.getCameraView()?.addFrameProcessor {
-            faceDetector.process(Frame(
-                    data = it.data,
-                    rotation = it.rotation,
-                    size = Size(it.size.width, it.size.height),
-                    format = it.format,
-                    isCameraFacingBack = identityCameraView?.getCameraView()?.facing == Facing.BACK))
+            faceDetector.process(it)
         }
     }
 
