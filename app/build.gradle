@@ -40,6 +40,9 @@ dependencies {
     //Circle Image
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
+    //OCR
+    compile(name:'abbyy-rtr-sdk-1.0', ext:'aar')
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

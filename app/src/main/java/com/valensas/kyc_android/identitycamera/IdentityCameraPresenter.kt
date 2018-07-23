@@ -1,10 +1,11 @@
 package com.valensas.kyc_android.identitycamera
 
+import android.content.Context
 import android.graphics.Bitmap
 import com.valensas.kyc_android.base.BasePresenter
-import com.valensas.kyc_android.identitycamera.model.FirebaseQRReader
-import com.valensas.kyc_android.identitycamera.model.FirebaseFaceDetection
-import com.valensas.kyc_android.identitycamera.model.FirebaseTextRecognizer
+import com.valensas.kyc_android.identitycamera.model.*
+import com.valensas.kyc_android.identitycamera.model.document.Document
+import com.valensas.kyc_android.identitycamera.model.driverslicence.DriversLicence
 import com.valensas.kyc_android.identitycamera.view.IdentityCameraView
 
 /**
@@ -15,6 +16,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var textRecognizer = FirebaseTextRecognizer(this)
     private var qrReader = FirebaseQRReader(this)
     private var faceDetector = FirebaseFaceDetection(this)
+    private var abbyyOCR = AbbyyOCR(this)
 
     override fun attach(view: IdentityCameraView) {
         identityCameraView = view
@@ -26,8 +28,17 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     }
 
     fun listenFrontIdentityScan() {
+        var firstTime = true
+
         identityCameraView?.getCameraView()?.addFrameProcessor {
-            textRecognizer.process(it)
+            //textRecognizer.process(it)
+            if (firstTime) {
+                println("Initializing recognition with : ${it.size.width} , ${it.size.height} , ${it.rotation}")
+                abbyyOCR.createTextCaptureService()
+                abbyyOCR.startRecognition(it.size.width, it.size.height, it.rotation)
+                firstTime = false
+            }
+            abbyyOCR.receiveBuffer(it.data)
         }
     }
 
@@ -43,11 +54,11 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         }
     }
 
-    fun textDetectionSuccessful(text: String) {
+    fun textDetectionSuccessful(driversLicence: DriversLicence) {
         identityCameraView?.getCameraView()?.clearFrameProcessors()
-        identityCameraView?.frontScanCompleted()
-        textRecognizer.firebaseTextRecognitionWrapper.textDetector.close()
-
+        identityCameraView?.frontScanCompleted(driversLicence)
+        //textRecognizer.firebaseTextRecognitionWrapper.textDetector.close()
+        abbyyOCR.stopRecognition()
     }
 
     fun qrReadSuccessful(result: String?) {
@@ -63,5 +74,13 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         identityCameraView?.getCameraView()?.clearFrameProcessors()
         identityCameraView?.selfieScanCompleted(faceBitmap)
         faceDetector.firebaseFaceWrapper.faceDetector.close()
+    }
+
+    fun getDefaultRotation(): Int? {
+        return identityCameraView?.getDefaultRotation()
+    }
+
+    fun getContext(): Context? {
+        return identityCameraView?.getActivityContext()
     }
 }

@@ -2,12 +2,13 @@ package com.valensas.kyc_android.identitycamera.model
 
 import android.graphics.*
 import android.util.Log
+import android.view.Surface
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.otaliastudios.cameraview.Frame
-import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
+import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
 import java.io.ByteArrayOutputStream
 
 
@@ -82,7 +83,7 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
             out.flush()
             out.close()
 
-            val rotatedImage = rotateImage(frameBitmap, -90F)
+            val rotatedImage = rotateImage(frameBitmap)
 
             printImageDimensions(rotatedImage)
             printBoundingBox(fbFace.boundingBox)
@@ -100,9 +101,18 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
         }
     }
 
-    private fun rotateImage(img: Bitmap, degree: Float): Bitmap {
+    private fun rotateImage(img: Bitmap): Bitmap {
+        Log.d("Orientation ", "${identityCameraPresenter?.getDefaultRotation()}")
         val matrix = Matrix()
-        matrix.postRotate(degree)
+        val rotationDegree = when (identityCameraPresenter?.getDefaultRotation()) {
+            Surface.ROTATION_0 -> -90F
+            Surface.ROTATION_90 -> 0F
+            Surface.ROTATION_180 -> 90F
+            Surface.ROTATION_270 -> 180F
+            else -> 0F
+        }
+
+        matrix.postRotate(rotationDegree)
         val rotatedImg = Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
         img.recycle()
         return rotatedImg

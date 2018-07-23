@@ -119,7 +119,7 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
         val isFirstRun = getSharedPreferences("PREFERENCE", Context.MODE_PRIVATE)
                 .getBoolean("isFirstRun", true)
 
-        if (isFirstRun) {
+        if (!isFirstRun) {
             crossfadeIn(viewPagerIntro)
             crossfadeIn(dotsLayout)
             crossfadeIn(subtitleFirstTextView)

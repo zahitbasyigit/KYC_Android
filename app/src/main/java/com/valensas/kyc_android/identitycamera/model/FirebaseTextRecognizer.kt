@@ -32,7 +32,7 @@ class FirebaseTextRecognizer(val identityCameraPresenter: IdentityCameraPresente
                                 for (elements in lines.elements)
                                     Log.d("Processor", elements.text)
                         */
-                            identityCameraPresenter?.textDetectionSuccessful(it.toString())
+                            //identityCameraPresenter?.textDetectionSuccessful()
                         }
                     },
                     onError = {

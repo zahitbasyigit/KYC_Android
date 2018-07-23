@@ -23,6 +23,10 @@ class IdentitySignitureActivity : AppCompatActivity() {
     private var faceSelfieBitmap: Bitmap? = null
     private var faceScannedBitmap: Bitmap? = null
     private var signitureScannedBitmap: Bitmap? = null
+    private var tckn: String? = null
+    private var name: String? = null
+    private var surname: String? = null
+    private var birthday: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +34,10 @@ class IdentitySignitureActivity : AppCompatActivity() {
         setContentView(R.layout.activity_identity_signiture)
 
         faceSelfieBitmap = loadImageFromBundle("SelfieFace")
+        tckn = intent?.getStringExtra("TCKN")
+        name = intent?.getStringExtra("Name")
+        surname = intent?.getStringExtra("Surname")
+        birthday = intent?.getStringExtra("Birthday")
 
         initInfoDialog()
         initButtonListeners()
@@ -47,7 +55,10 @@ class IdentitySignitureActivity : AppCompatActivity() {
             intent = Intent(this, IdentityResultActivity::class.java)
             putImageToIntent("DrawnSigniture", intent, identitySignitureDrawView.bitmap)
             putImageToIntent("SelfieFace", intent, faceSelfieBitmap)
-            println(faceScannedBitmap)
+            intent.putExtra("Name", name)
+            intent.putExtra("Surname", surname)
+            intent.putExtra("TCKN", tckn)
+            intent.putExtra("Birthday", birthday)
             startActivity(intent)
         })
     }
