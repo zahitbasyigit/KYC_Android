@@ -8,7 +8,7 @@ import com.abbyy.mobile.rtr.IRecognitionService
 import com.abbyy.mobile.rtr.ITextCaptureService
 import com.abbyy.mobile.rtr.Language
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
-import com.valensas.kyc_android.identitycamera.model.driverslicence.DriversLicence
+import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -23,9 +23,9 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
     private var engine: Engine? = null
     private var textCaptureService: ITextCaptureService? = null
 
-    private var stableResultReached = false
     private var currentBuffer: ByteArray? = null
     private var changeBuffer = AtomicBoolean(true)
+
     private var driversLicence = DriversLicence()
 
     private val textCaptureCallback = object : ITextCaptureService.Callback {
@@ -48,9 +48,11 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
 
             if (lines != null && lines.isNotEmpty()) {
                 for (line in lines) {
-                    for (category in driversLicence.document.documentItems) {
+                    for (category in driversLicence.document.documentItems.keys) {
+                        val item = driversLicence.document.documentItems[category]
+
                         if (!driversLicence.document.skipWords.contains(line.Text))
-                            category.attemptToWrite(line.Text, 1.0)
+                            item?.attemptToWrite(line.Text)
                     }
                     println(line.Text)
                     terminate = driversLicence.document.shouldTerminate()
@@ -60,7 +62,7 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
             driversLicence.document.print()
 
             if (terminate) {
-                identityCameraPresenter.textDetectionSuccessful(driversLicence)
+                identityCameraPresenter.frontTextScanSuccessful(driversLicence)
             }
 
 
@@ -74,7 +76,7 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
 
     fun createTextCaptureService(): Boolean {
         try {
-            engine = Engine.load(identityCameraPresenter?.getContext(), licenseFileName)
+            engine = Engine.load(identityCameraPresenter.getContext(), licenseFileName)
             textCaptureService = engine?.createTextCaptureService(textCaptureCallback)
             textCaptureService?.setRecognitionLanguage(Language.Turkish)
             return true
@@ -121,10 +123,10 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
     }
 
     fun copyContents(from: ByteArray?, to: ByteArray?) {
-        if (from?.size!! > to?.size!!) {
-            println("From is greater than to! Cannot copy! From: ${from?.size},To: ${to?.size}")
-        } else {
-            if (from != null && to != null) {
+        if (from != null && to != null) {
+            if (from.size > to.size) {
+                println("From is greater than to! Cannot copy! From: ${from.size},To: ${to.size}")
+            } else {
                 for (i in from.indices) {
                     to[i] = from[i]
                 }

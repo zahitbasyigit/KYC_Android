@@ -2,10 +2,12 @@ package com.valensas.kyc_android.identitycamera
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.media.FaceDetector
+import android.util.Log
+import com.otaliastudios.cameraview.FrameProcessor
 import com.valensas.kyc_android.base.BasePresenter
 import com.valensas.kyc_android.identitycamera.model.*
-import com.valensas.kyc_android.identitycamera.model.document.Document
-import com.valensas.kyc_android.identitycamera.model.driverslicence.DriversLicence
+import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
 import com.valensas.kyc_android.identitycamera.view.IdentityCameraView
 
 /**
@@ -13,10 +15,17 @@ import com.valensas.kyc_android.identitycamera.view.IdentityCameraView
  */
 class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var identityCameraView: IdentityCameraView? = null
-    private var textRecognizer = FirebaseTextRecognizer(this)
     private var qrReader = FirebaseQRReader(this)
     private var faceDetector = FirebaseFaceDetection(this)
     private var abbyyOCR = AbbyyOCR(this)
+
+
+    private var frontFaceScanProcessor: FrameProcessor? = null
+    private var frontTextScanProcessor: FrameProcessor? = null
+    private var frontFaceScanCompleted = false
+    private var frontTextScanCompleted = false
+    private var driversLicence: DriversLicence? = null
+    private var faceBitmap: Bitmap? = null
 
     override fun attach(view: IdentityCameraView) {
         identityCameraView = view
@@ -29,9 +38,10 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
     fun listenFrontIdentityScan() {
         var firstTime = true
+        faceDetector.detectionMode = FirebaseFaceDetection.DETECT_IN_DOCUMENT
 
-        identityCameraView?.getCameraView()?.addFrameProcessor {
-            //textRecognizer.process(it)
+
+        frontTextScanProcessor = FrameProcessor {
             if (firstTime) {
                 println("Initializing recognition with : ${it.size.width} , ${it.size.height} , ${it.rotation}")
                 abbyyOCR.createTextCaptureService()
@@ -40,6 +50,13 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
             }
             abbyyOCR.receiveBuffer(it.data)
         }
+
+        frontFaceScanProcessor = FrameProcessor {
+            faceDetector.process(it)
+        }
+
+        identityCameraView?.getCameraView()?.addFrameProcessor(frontTextScanProcessor)
+        identityCameraView?.getCameraView()?.addFrameProcessor(frontFaceScanProcessor)
     }
 
     fun listenBackIdentityScan() {
@@ -49,19 +66,43 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     }
 
     fun listenSelfieScan() {
+        faceDetector.detectionMode = FirebaseFaceDetection.DETECT_IN_SELFIE
+
         identityCameraView?.getCameraView()?.addFrameProcessor {
             faceDetector.process(it)
         }
     }
 
-    fun textDetectionSuccessful(driversLicence: DriversLicence) {
-        identityCameraView?.getCameraView()?.clearFrameProcessors()
-        identityCameraView?.frontScanCompleted(driversLicence)
-        //textRecognizer.firebaseTextRecognitionWrapper.textDetector.close()
-        abbyyOCR.stopRecognition()
+    fun frontFaceScanSuccessful(faceBitmap: Bitmap) {
+        this.frontFaceScanCompleted = true
+        this.faceBitmap = faceBitmap
+        identityCameraView?.getCameraView()?.removeFrameProcessor(frontFaceScanProcessor)
+        faceDetector.firebaseFaceWrapper.faceDetector.close()
+        checkIfFrontScanIsCompleted()
     }
 
-    fun qrReadSuccessful(result: String?) {
+    fun frontTextScanSuccessful(driversLicence: DriversLicence) {
+        this.frontTextScanCompleted = true
+        this.driversLicence = driversLicence
+        identityCameraView?.getCameraView()?.removeFrameProcessor(frontTextScanProcessor)
+        abbyyOCR.stopRecognition()
+        checkIfFrontScanIsCompleted()
+    }
+
+    private fun checkIfFrontScanIsCompleted() {
+
+        if (this.frontFaceScanCompleted && this.frontTextScanCompleted) {
+            identityCameraView?.getCameraView()?.clearFrameProcessors()
+
+            if (driversLicence != null && faceBitmap != null) {
+                identityCameraView?.frontScanCompleted(driversLicence!!, faceBitmap!!)
+            } else {
+                Log.e("Null:", "Something went wrong")
+            }
+        }
+    }
+
+    fun backQRScanSuccessful(result: String?) {
         if (result != null) {
             println(result)
             identityCameraView?.getCameraView()?.clearFrameProcessors()
@@ -70,7 +111,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         }
     }
 
-    fun faceDetectionSuccessful(faceBitmap: Bitmap) {
+    fun selfieFaceScanSuccessful(faceBitmap: Bitmap) {
         identityCameraView?.getCameraView()?.clearFrameProcessors()
         identityCameraView?.selfieScanCompleted(faceBitmap)
         faceDetector.firebaseFaceWrapper.faceDetector.close()

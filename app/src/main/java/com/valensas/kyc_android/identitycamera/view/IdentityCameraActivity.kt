@@ -3,28 +3,20 @@ package com.valensas.kyc_android.identitycamera.view
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Rect
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
-import android.view.DragAndDropPermissions
 import android.view.View
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.Facing
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
-import com.valensas.kyc_android.identitycamera.model.MySize
-import com.valensas.kyc_android.identitycamera.model.document.Document
-import com.valensas.kyc_android.identitycamera.model.driverslicence.DriversLicence
+import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_identity_camera.*
 import java.io.ByteArrayOutputStream
-import java.security.AccessController.getContext
 
 class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
-
-    private var identityCameraPresenter: IdentityCameraPresenter? = null
-    private var driversLicence: DriversLicence? = null
-
     enum class state {
         STATE_FRONT_START,
         STATE_FRONT_SCAN,
@@ -33,6 +25,30 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         STATE_SELFIE_START,
         STATE_SELFIE_SCAN,
         STATE_COMPLETE
+    }
+
+    private var identityCameraPresenter: IdentityCameraPresenter? = null
+    private var driversLicence: DriversLicence? = null
+    private var documentFaceBitmap: Bitmap? = null
+    private var handler = Handler { msg ->
+        when (msg.what) {
+            INITIALIZE_FRONT_SCAN -> {
+                initializeFrontScan()
+                true
+            }
+            INITIALIZE_BACK_SCAN -> {
+                initializeBackScan()
+                true
+            }
+
+            INITIALIZE_SELFIE_SCAN -> {
+                initializeSelfieScan()
+                true
+            }
+            else -> {
+                false
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,29 +65,40 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
     }
 
     private fun initButtonListeners() {
-        identityCameraInfoOKButton.setOnClickListener({
-            identityCameraInfoFront.visibility = View.VISIBLE
-            identityCameraInfoBack.visibility = View.VISIBLE
-            identityCameraInfoImage.visibility = View.GONE
-            identityCameraInfoText.visibility = View.GONE
-            identityCameraInfoOKButton.visibility = View.GONE
-
-            val rect = Rect(0, 0, 0, 0)
-            cameraView?.getWindowVisibleDisplayFrame(rect)
-            println(rect.width())
-            println(rect.height())
-
-            identityCameraPresenter?.listenFrontIdentityScan()
-            flowState = state.STATE_FRONT_SCAN
-
-        }
-
-        )
+        identityCameraInfoOKButton.visibility = View.GONE
+        handler.sendEmptyMessageDelayed(INITIALIZE_FRONT_SCAN, INFO_READ_WAIT_TIME)
     }
 
-    override fun frontScanCompleted(driversLicence: DriversLicence) {
+    fun initializeFrontScan() {
+        identityCameraInfoFront.visibility = View.VISIBLE
+        identityCameraInfoBack.visibility = View.VISIBLE
+        identityCameraInfoImage.visibility = View.GONE
+        identityCameraInfoText.visibility = View.GONE
+        identityCameraInfoOKButton.visibility = View.GONE
+        identityCameraPresenter?.listenFrontIdentityScan()
+        flowState = state.STATE_FRONT_SCAN
+    }
+
+    fun initializeBackScan() {
+        identityCameraInfoImage.visibility = View.GONE
+        identityCameraInfoText.visibility = View.GONE
+        identityCameraInfoOKButton.visibility = View.GONE
+        identityCameraPresenter?.listenBackIdentityScan()
+        flowState = state.STATE_BACK_SCAN
+    }
+
+    fun initializeSelfieScan() {
+        identityCameraInfoImage.visibility = View.GONE
+        identityCameraInfoText.visibility = View.GONE
+        identityCameraInfoOKButton.visibility = View.GONE
+        identityCameraPresenter?.listenSelfieScan()
+        flowState = state.STATE_SELFIE_SCAN
+    }
+
+    override fun frontScanCompleted(driversLicence: DriversLicence, faceBitmap: Bitmap) {
         runOnUiThread({
             this.driversLicence = driversLicence
+            this.documentFaceBitmap = faceBitmap
             driversLicence.finalizeDocument()
             flowState = state.STATE_BACK_START
             identityCameraInfoFront.setImageResource(R.drawable.kyc_icon_identity_checked)
@@ -80,15 +107,9 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
 
             identityCameraInfoImage.visibility = View.VISIBLE
             identityCameraInfoText.visibility = View.VISIBLE
-            identityCameraInfoOKButton.visibility = View.VISIBLE
+            //identityCameraInfoOKButton.visibility = View.VISIBLE
 
-            identityCameraInfoOKButton.setOnClickListener({
-                identityCameraInfoImage.visibility = View.GONE
-                identityCameraInfoText.visibility = View.GONE
-                identityCameraInfoOKButton.visibility = View.GONE
-                identityCameraPresenter?.listenBackIdentityScan()
-                flowState = state.STATE_BACK_SCAN
-            })
+            handler.sendEmptyMessageDelayed(INITIALIZE_BACK_SCAN, INFO_READ_WAIT_TIME)
         })
     }
 
@@ -103,17 +124,9 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
 
         identityCameraInfoImage.visibility = View.VISIBLE
         identityCameraInfoText.visibility = View.VISIBLE
-        identityCameraInfoOKButton.visibility = View.VISIBLE
+        //identityCameraInfoOKButton.visibility = View.VISIBLE
 
-
-        identityCameraInfoOKButton.setOnClickListener({
-            identityCameraInfoImage.visibility = View.GONE
-            identityCameraInfoText.visibility = View.GONE
-            identityCameraInfoOKButton.visibility = View.GONE
-            identityCameraPresenter?.listenSelfieScan()
-            flowState = state.STATE_SELFIE_SCAN
-        })
-
+        handler.sendEmptyMessageDelayed(INITIALIZE_SELFIE_SCAN, INFO_READ_WAIT_TIME)
         cameraView.facing = Facing.FRONT
     }
 
@@ -124,6 +137,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         //Signature Intent
         intent = Intent(this, IdentitySignitureActivity::class.java)
         putImageToIntent("SelfieFace", intent, faceBitmap)
+        putImageToIntent("DocumentFace", intent, documentFaceBitmap)
         intent.putExtra("TCKN", driversLicence?.tckn)
         intent.putExtra("Name", driversLicence?.name)
         intent.putExtra("Surname", driversLicence?.surname)
@@ -171,7 +185,10 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
 
     companion object {
         var flowState = state.STATE_FRONT_START
-
+        var INITIALIZE_FRONT_SCAN = 0
+        var INITIALIZE_BACK_SCAN = 1
+        var INITIALIZE_SELFIE_SCAN = 2
+        var INFO_READ_WAIT_TIME = 3000L
     }
 
 

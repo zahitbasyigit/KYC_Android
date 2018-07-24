@@ -4,14 +4,16 @@ package com.valensas.kyc_android.identitycamera.model.document
  * Created by Zahit on 23-Jul-18.
  */
 class Document {
-    val documentItems = mutableListOf<DocumentItem>()
-    val skipWords = mutableListOf<String>()
-    var certaintyThreshold = 0.8
+    val documentItems = mutableMapOf<String, DocumentItem>() //String(category) -> DocumentItem
+    val skipWords = hashSetOf<String>()
 
     fun shouldTerminate(): Boolean {
-        for (item in documentItems) {
-            if (item.certainity < certaintyThreshold || item.possibleResults.size < item.finalAmountOfPossibleResults) {
-                return false
+        for (category in documentItems.keys) {
+            val item = documentItems.get(category)
+            if (item != null) {
+                if (item.possibleResults.size < item.finalAmountOfPossibleResults) {
+                    return false
+                }
             }
         }
         return true
@@ -20,18 +22,23 @@ class Document {
     fun print() {
         var str = ""
         str += "Printing document!\n"
-        for (item in documentItems) {
-            str += item.category + ": "
-            for (possibility in item.possibleResults) {
-                str += possibility + ","
+        for (category in documentItems.keys) {
+            val item = documentItems[category]
+
+            if (item != null) {
+                str += "$category: "
+                for (possibility in item.possibleResults) {
+                    str += "$possibility,"
+                }
+
+                str += "!"
+
+                if (item.possibleResults.size == item.finalAmountOfPossibleResults)
+                    str += "item ready and chosen: ${item.possibleResults[item.indexOfOurResult - 1]}"
+
+                str += "\n"
             }
 
-            str += "!"
-
-            if (item.possibleResults.size == item.finalAmountOfPossibleResults)
-                str += "item ready and chosen: ${item.possibleResults[item.indexOfOurResult - 1]}"
-
-            str += "\n"
         }
 
         str += "---------------"
@@ -39,15 +46,15 @@ class Document {
     }
 
     class Builder {
-        val document = Document()
+        private val document = Document()
 
         fun addCategory(category: String, format: String = "", possiblePrefixes: List<String>,
                         textProperty: TextProperty = TextProperty.DEFAULT, resultIndex: Int, totalResultCount: Int): Builder {
-            document.documentItems.add(DocumentItem(
-                    category = category,
+            document.documentItems.put(
+                    category, DocumentItem(
                     format = format,
                     possiblePrefixes = possiblePrefixes,
-                    textPropery = textProperty,
+                    textProperty = textProperty,
                     finalAmountOfPossibleResults = totalResultCount,
                     indexOfOurResult = resultIndex
             ))
@@ -59,13 +66,8 @@ class Document {
             return this
         }
 
-        fun setSkipwordList(wordList: List<String>): Builder {
+        fun addSkipwordList(wordList: HashSet<String>): Builder {
             document.skipWords.addAll(wordList)
-            return this
-        }
-
-        fun setCertaintyThreshold(d: Double): Builder {
-            document.certaintyThreshold = d
             return this
         }
 

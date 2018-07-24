@@ -34,6 +34,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
         setContentView(R.layout.activity_identity_signiture)
 
         faceSelfieBitmap = loadImageFromBundle("SelfieFace")
+        faceScannedBitmap = loadImageFromBundle("DocumentFace")
         tckn = intent?.getStringExtra("TCKN")
         name = intent?.getStringExtra("Name")
         surname = intent?.getStringExtra("Surname")
@@ -55,6 +56,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
             intent = Intent(this, IdentityResultActivity::class.java)
             putImageToIntent("DrawnSigniture", intent, identitySignitureDrawView.bitmap)
             putImageToIntent("SelfieFace", intent, faceSelfieBitmap)
+            putImageToIntent("DocumentFace", intent, faceScannedBitmap)
             intent.putExtra("Name", name)
             intent.putExtra("Surname", surname)
             intent.putExtra("TCKN", tckn)

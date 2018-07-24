@@ -27,7 +27,7 @@ class FirebaseQRReader(val identityCameraPresenter: IdentityCameraPresenter?) {
                         Log.d("Scanner", "Scanning Barcodes")
                         if (it.isNotEmpty() && IdentityCameraActivity.flowState == IdentityCameraActivity.state.STATE_BACK_SCAN) {
                             val rawValue = it[0].rawValue
-                            identityCameraPresenter?.qrReadSuccessful(rawValue)
+                            identityCameraPresenter?.backQRScanSuccessful(rawValue)
                         }
                     },
                     onError = {

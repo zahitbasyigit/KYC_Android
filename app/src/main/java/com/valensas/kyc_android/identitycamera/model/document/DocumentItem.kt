@@ -7,26 +7,31 @@ import com.valensas.kyc_android.identitycamera.model.document.TextProperty.*
  * Created by Zahit on 23-Jul-18.
  */
 class DocumentItem(
-        val category: String,
         val format: String = "",
-        val possiblePrefixes: List<String> = listOf<String>(),
+        var possiblePrefixes: List<String> = listOf<String>(),
         var possibleResults: MutableList<String> = mutableListOf<String>(),
         val finalAmountOfPossibleResults: Int,
         val indexOfOurResult: Int,
-        var certainity: Double = 0.0,
-        var textPropery: TextProperty = DEFAULT
+        var textProperty: TextProperty = DEFAULT
 ) {
 
-    fun attemptToWrite(text: String, certainity: Double) {
+    init {
+        //Sort the list by length to avoid i.e. 4 replacing 4a first in deletePossiblePrefixes(text : String)
+        possiblePrefixes = possiblePrefixes.sortedBy {
+            -it.length
+        }
+    }
+
+    fun attemptToWrite(text: String) {
         val fixedText = deletePossiblePrefixes(text)
 
-        if (certainity >= this.certainity && fitsFormat(fixedText) && !possibleResults.contains(fixedText)) {
+        if (fitsFormat(fixedText) && !possibleResults.contains(fixedText)) {
             possibleResults.add(fixedText)
-            this.certainity = certainity
         }
     }
 
     private fun deletePossiblePrefixes(text: String): String {
+
         for (prefix in possiblePrefixes) {
             if (text.startsWith(prefix)) {
                 return text.substring(prefix.length)
@@ -36,7 +41,7 @@ class DocumentItem(
     }
 
     fun fitsFormat(text: String): Boolean {
-        when (textPropery) {
+        when (textProperty) {
             DEFAULT -> {
 
             }

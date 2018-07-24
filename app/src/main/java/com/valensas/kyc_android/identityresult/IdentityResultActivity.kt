@@ -16,6 +16,7 @@ class IdentityResultActivity : AppCompatActivity() {
         setContentView(R.layout.activity_identity_result)
         loadImageFromBundleToView("DrawnSigniture", identityResultSignitureImage)
         loadImageFromBundleToView("SelfieFace", identityResultSelfieImage)
+        loadImageFromBundleToView("DocumentFace",identityResultIDImage)
         loadStringFromBundleToTextView("Name", identityResultName)
         loadStringFromBundleToTextView("Surname", identityResultSurname)
         loadStringFromBundleToTextView("TCKN", identityResultTCKN)

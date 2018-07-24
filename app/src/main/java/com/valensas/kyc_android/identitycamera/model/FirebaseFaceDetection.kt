@@ -8,7 +8,6 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.otaliastudios.cameraview.Frame
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
-import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
 import java.io.ByteArrayOutputStream
 
 
@@ -18,7 +17,7 @@ import java.io.ByteArrayOutputStream
 class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter?) {
 
     val firebaseFaceWrapper = FirebaseFaceWrapper()
-
+    var detectionMode = DETECT_IN_DOCUMENT
 
     fun process(frame: Frame) {
         detectFaceIn(frame)
@@ -31,9 +30,8 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
             firebaseFaceWrapper.process(
                     image = convertFrameToImage(frame),
                     onSuccess = {
-                        Log.d("Scanner", "Scanning Faces")
-
-                        if (it.isNotEmpty() && IdentityCameraActivity.flowState == IdentityCameraActivity.state.STATE_SELFIE_SCAN) {
+                        Log.d("Scanner", "Scanning Faces : ${this.detectionMode}")
+                        if (it.isNotEmpty()) {
                             val face = it.first()
                             processImage(face, myFrame)
                         }
@@ -52,7 +50,14 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
                     .setWidth(frame.size.width)
                     .setHeight(frame.size.height)
                     .setFormat(frame.format)
-                    .setRotation(frame.rotation / RIGHT_ANGLE)
+                    .setRotation(frame.rotation /
+                            when (this.detectionMode) {
+                                DETECT_IN_DOCUMENT -> RIGHT_ANGLE * 2
+                                DETECT_IN_SELFIE -> RIGHT_ANGLE
+                                else -> {
+                                    RIGHT_ANGLE
+                                }
+                            })
                     .build()
 
 
@@ -96,7 +101,15 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
                     fbFace.boundingBox.height()
             )
 
-            identityCameraPresenter?.faceDetectionSuccessful(croppedBitmap)
+
+            when (detectionMode) {
+                DETECT_IN_DOCUMENT -> {
+                    identityCameraPresenter?.frontFaceScanSuccessful(croppedBitmap)
+                }
+                DETECT_IN_SELFIE -> {
+                    identityCameraPresenter?.selfieFaceScanSuccessful(croppedBitmap)
+                }
+            }
 
         }
     }
@@ -104,7 +117,7 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
     private fun rotateImage(img: Bitmap): Bitmap {
         Log.d("Orientation ", "${identityCameraPresenter?.getDefaultRotation()}")
         val matrix = Matrix()
-        val rotationDegree = when (identityCameraPresenter?.getDefaultRotation()) {
+        var rotationDegree = when (identityCameraPresenter?.getDefaultRotation()) {
             Surface.ROTATION_0 -> -90F
             Surface.ROTATION_90 -> 0F
             Surface.ROTATION_180 -> 90F
@@ -112,14 +125,21 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
             else -> 0F
         }
 
+        if (detectionMode == DETECT_IN_DOCUMENT) {
+            rotationDegree += 90F
+        }
+
         matrix.postRotate(rotationDegree)
         val rotatedImg = Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
-        img.recycle()
+        if (rotatedImg != img)
+            img.recycle()
         return rotatedImg
     }
 
     companion object {
         private const val RIGHT_ANGLE = 90
+        val DETECT_IN_DOCUMENT = 0
+        val DETECT_IN_SELFIE = 1
     }
 
 }
