@@ -12,11 +12,22 @@ import com.otaliastudios.cameraview.Facing
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
 import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
+import com.valensas.kyc_android.identitycamera.model.tensorflow.TensorFlowImageClassifier
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_identity_camera.*
+import org.tensorflow.TensorFlow
 import java.io.ByteArrayOutputStream
 
 class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
+
+    val MODEL_FILE = "file:///android_asset/retrained_graph.pb"
+    val LABEL_FILE = "file:///android_asset/retrained_labels"
+    val INPUT_WIDTH = 299
+    val INPUT_HEIGHT = 299
+    val IMAGE_MEAN = 3
+    val IMAGE_STD =3f
+    val INPUT_NAME = "input"
+    val OUTPUT_NAME = "final_result"
     enum class state {
         STATE_FRONT_START,
         STATE_FRONT_SCAN,
@@ -56,11 +67,18 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         setContentView(R.layout.activity_identity_camera)
         identityCameraPresenter = IdentityCameraPresenter()
         identityCameraPresenter?.attach(this)
+        var classifier = TensorFlowImageClassifier.create(
+                assets, MODEL_FILE, LABEL_FILE, INPUT_WIDTH, INPUT_HEIGHT,
+                IMAGE_MEAN, IMAGE_STD, INPUT_NAME, OUTPUT_NAME)
+
         TensorFlowDocument()
         initButtonListeners()
+
     }
 
     private fun TensorFlowDocument() {
+
+
     }
 
     private fun initButtonListeners() {
