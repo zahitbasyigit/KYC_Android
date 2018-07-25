@@ -33,7 +33,7 @@ class Document {
 
                 str += "!"
 
-                if (item.possibleResults.size == item.finalAmountOfPossibleResults)
+                if (item.possibleResults.size >= item.finalAmountOfPossibleResults)
                     str += "item ready and chosen: ${item.possibleResults[item.indexOfOurResult - 1]}"
 
                 str += "\n"

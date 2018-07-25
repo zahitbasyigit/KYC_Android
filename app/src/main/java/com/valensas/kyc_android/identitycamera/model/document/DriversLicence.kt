@@ -3,14 +3,13 @@ package com.valensas.kyc_android.identitycamera.model.document
 /**
  * Created by Zahit on 23-Jul-18.
  */
-class DriversLicence(var document: Document = Document()) {
-    var tckn = ""
-    var name = ""
-    var surname = ""
-    var birthdate = ""
-
+class DriversLicence : DocumentItemSet() {
 
     init {
+        build()
+    }
+
+    override fun build() {
         var skipSet = hashSetOf("TR", "SÜRÜCÜ", "BELGESİ", "DRIVING", "LICENCE", "TÜRKİYE", "CUMHURİYETİ")
 
         document = Document.Builder()
@@ -21,21 +20,4 @@ class DriversLicence(var document: Document = Document()) {
                 .addSkipwordList(skipSet)
                 .build()
     }
-
-    fun finalizeDocument() {
-        this.surname = loadStringFromDocument("surname")
-        this.name = loadStringFromDocument("name")
-        this.birthdate = loadStringFromDocument("birthdate")
-        this.tckn = loadStringFromDocument("tckn")
-    }
-
-    fun loadStringFromDocument(category: String): String {
-        val item = document.documentItems[category]
-        if (item != null) {
-            return item.possibleResults[item.indexOfOurResult - 1]
-        }
-        return ""
-    }
-
-
 }

@@ -2,6 +2,7 @@ package com.valensas.kyc_android.identitycamera.view
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
@@ -9,8 +10,10 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.Facing
+import com.valensas.kyc_android.ImageTestActivity
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
+import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
 import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
 import com.valensas.kyc_android.identitycamera.model.tensorflow.TensorFlowImageClassifier
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
@@ -19,15 +22,15 @@ import org.tensorflow.TensorFlow
 import java.io.ByteArrayOutputStream
 
 class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
+    override fun showBitmap(frameBitmap: Bitmap?) {
+        flowState = state.STATE_COMPLETE
+        runOnUiThread({
+            ImageTestActivity.imageBitmap = frameBitmap
+            intent = Intent(this, ImageTestActivity::class.java)
+            startActivity(intent)
+        })
+    }
 
-    val MODEL_FILE = "file:///android_asset/retrained_graph.pb"
-    val LABEL_FILE = "file:///android_asset/retrained_labels"
-    val INPUT_WIDTH = 299
-    val INPUT_HEIGHT = 299
-    val IMAGE_MEAN = 3
-    val IMAGE_STD =3f
-    val INPUT_NAME = "input"
-    val OUTPUT_NAME = "final_result"
     enum class state {
         STATE_FRONT_START,
         STATE_FRONT_SCAN,
@@ -39,7 +42,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
     }
 
     private var identityCameraPresenter: IdentityCameraPresenter? = null
-    private var driversLicence: DriversLicence? = null
+    private var documentItemSet: DocumentItemSet? = null
     private var documentFaceBitmap: Bitmap? = null
     private var handler = Handler { msg ->
         when (msg.what) {
@@ -67,18 +70,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         setContentView(R.layout.activity_identity_camera)
         identityCameraPresenter = IdentityCameraPresenter()
         identityCameraPresenter?.attach(this)
-        var classifier = TensorFlowImageClassifier.create(
-                assets, MODEL_FILE, LABEL_FILE, INPUT_WIDTH, INPUT_HEIGHT,
-                IMAGE_MEAN, IMAGE_STD, INPUT_NAME, OUTPUT_NAME)
-
-        TensorFlowDocument()
         initButtonListeners()
-
-    }
-
-    private fun TensorFlowDocument() {
-
-
     }
 
     private fun initButtonListeners() {
@@ -112,11 +104,11 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         flowState = state.STATE_SELFIE_SCAN
     }
 
-    override fun frontScanCompleted(driversLicence: DriversLicence, faceBitmap: Bitmap) {
+    override fun frontScanCompleted(documentItemSet: DocumentItemSet, faceBitmap: Bitmap) {
         runOnUiThread({
-            this.driversLicence = driversLicence
+            this.documentItemSet = documentItemSet
             this.documentFaceBitmap = faceBitmap
-            driversLicence.finalizeDocument()
+            documentItemSet.finalizeDocument()
             flowState = state.STATE_BACK_START
             identityCameraInfoFront.setImageResource(R.drawable.kyc_icon_identity_checked)
             identityCameraInfoImage.setImageResource(R.drawable.kyc_identity_back)
@@ -128,6 +120,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
 
             handler.sendEmptyMessageDelayed(INITIALIZE_BACK_SCAN, INFO_READ_WAIT_TIME)
         })
+
     }
 
     override fun backScanCompleted() {
@@ -155,10 +148,10 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         intent = Intent(this, IdentitySignitureActivity::class.java)
         putImageToIntent("SelfieFace", intent, faceBitmap)
         putImageToIntent("DocumentFace", intent, documentFaceBitmap)
-        intent.putExtra("TCKN", driversLicence?.tckn)
-        intent.putExtra("Name", driversLicence?.name)
-        intent.putExtra("Surname", driversLicence?.surname)
-        intent.putExtra("Birthday", driversLicence?.birthdate)
+        intent.putExtra("TCKN", documentItemSet?.tckn)
+        intent.putExtra("Name", documentItemSet?.name)
+        intent.putExtra("Surname", documentItemSet?.surname)
+        intent.putExtra("Birthday", documentItemSet?.birthdate)
 
         println(faceBitmap)
         startActivity(intent)
@@ -174,6 +167,10 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
 
     override fun getActivityContext(): Context {
         return this
+    }
+
+    override fun getActivityAssets(): AssetManager {
+        return assets
     }
 
 

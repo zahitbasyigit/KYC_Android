@@ -8,7 +8,9 @@ import com.abbyy.mobile.rtr.IRecognitionService
 import com.abbyy.mobile.rtr.ITextCaptureService
 import com.abbyy.mobile.rtr.Language
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
+import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
 import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
+import com.valensas.kyc_android.identitycamera.model.document.IdentityCard
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -24,13 +26,15 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
     private var textCaptureService: ITextCaptureService? = null
 
     private var currentBuffer: ByteArray? = null
+    private var bestBuffer: ByteArray? = null
     private var changeBuffer = AtomicBoolean(true)
 
     private var driversLicence = DriversLicence()
+    private var identityCard = IdentityCard()
+
 
     private val textCaptureCallback = object : ITextCaptureService.Callback {
         override fun onRequestLatestFrame(buffer: ByteArray?) {
-            //textCaptureService?.submitRequestedFrame(buffer)
             changeBuffer.set(false)
             fillBuffer(buffer)
             changeBuffer.set(true)
@@ -41,28 +45,36 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
                 status: IRecognitionService.ResultStabilityStatus?,
                 warning: IRecognitionService.Warning?) {
 
-            if (status?.ordinal!! < 4)
+            val currentDocumentSet = getCurrentDocumentSet()
+            val currentDocument = currentDocumentSet.document
+
+            println(status)
+
+            if (status?.ordinal!! < 3)
                 return
+
 
             var terminate = false
 
-            if (lines != null && lines.isNotEmpty()) {
+            if (lines != null && lines.isNotEmpty() && currentDocument != null) {
                 for (line in lines) {
-                    for (category in driversLicence.document.documentItems.keys) {
-                        val item = driversLicence.document.documentItems[category]
+                    for (category in currentDocument.documentItems.keys) {
+                        val item = currentDocument.documentItems[category]
 
-                        if (!driversLicence.document.skipWords.contains(line.Text))
+                        if (!currentDocument.skipWords.contains(line.Text))
                             item?.attemptToWrite(line.Text)
                     }
                     println(line.Text)
-                    terminate = driversLicence.document.shouldTerminate()
+                    bestBuffer = currentBuffer
+                    terminate = currentDocument.shouldTerminate()
                 }
             }
 
-            driversLicence.document.print()
+            currentDocument!!.print()
 
             if (terminate) {
-                identityCameraPresenter.frontTextScanSuccessful(driversLicence)
+                identityCameraPresenter.frontTextScanSuccessful(currentDocumentSet)
+                //identityCameraPresenter.showBuffer(bestBuffer)
             }
 
 
@@ -132,5 +144,9 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
                 }
             }
         }
+    }
+
+    fun getCurrentDocumentSet(): DocumentItemSet {
+        return driversLicence
     }
 }
