@@ -4,6 +4,8 @@ package com.valensas.kyc_android.identitycamera.model.document
  * Created by Zahit on 23-Jul-18.
  */
 class Document {
+
+
     val documentItems = mutableMapOf<String, DocumentItem>() //String(category) -> DocumentItem
     val skipWords = hashSetOf<String>()
 

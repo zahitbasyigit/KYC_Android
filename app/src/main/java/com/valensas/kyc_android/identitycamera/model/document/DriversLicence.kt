@@ -6,6 +6,7 @@ package com.valensas.kyc_android.identitycamera.model.document
 class DriversLicence : DocumentItemSet() {
 
     init {
+        this.type = Type.DRIVERS_LICENCE
         build()
     }
 

@@ -147,6 +147,6 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
     }
 
     fun getCurrentDocumentSet(): DocumentItemSet {
-        return driversLicence
+        return identityCard
     }
 }

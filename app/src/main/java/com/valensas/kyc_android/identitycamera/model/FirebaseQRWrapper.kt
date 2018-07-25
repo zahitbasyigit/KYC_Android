@@ -20,8 +20,23 @@ class FirebaseQRWrapper {
                 .build()
     }
 
-    val qrDetector: FirebaseVisionBarcodeDetector by lazy {
-        FirebaseVision.getInstance().getVisionBarcodeDetector(qrReaderOptions)
+    val barcodeReaderOptions: FirebaseVisionBarcodeDetectorOptions by lazy {
+        FirebaseVisionBarcodeDetectorOptions.Builder()
+                .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_CODE_128)
+                .build()
+    }
+
+    lateinit var qrDetector: FirebaseVisionBarcodeDetector
+
+    fun initQRDetector(mode: Int) {
+        when (mode) {
+            QR_READER -> {
+                qrDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(qrReaderOptions)
+            }
+            BARCODE_READER -> {
+                qrDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(barcodeReaderOptions)
+            }
+        }
     }
 
     fun process(image: FirebaseVisionImage,
@@ -46,5 +61,7 @@ class FirebaseQRWrapper {
 
     companion object {
         private val TAG = FirebaseQRWrapper::class.java.simpleName
+        val QR_READER = 0
+        val BARCODE_READER = 1
     }
 }

@@ -4,10 +4,18 @@ package com.valensas.kyc_android.identitycamera.model.document
  * Created by Zahit on 25-Jul-18.
  */
 abstract class DocumentItemSet {
+    enum class Type {
+        DRIVERS_LICENCE,
+        IDENTITY_CARD,
+        PASSPORT,
+        NONE
+    }
+
     var tckn = ""
     var name = ""
     var surname = ""
     var birthdate = ""
+    var type = Type.NONE
 
     var document: Document? = null
 

@@ -6,6 +6,7 @@ package com.valensas.kyc_android.identitycamera.model.document
 class IdentityCard : DocumentItemSet() {
 
     init {
+        this.type = Type.IDENTITY_CARD
         build()
     }
 

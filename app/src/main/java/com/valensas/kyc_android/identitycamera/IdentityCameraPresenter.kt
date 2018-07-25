@@ -12,6 +12,7 @@ import com.valensas.kyc_android.R.id.view
 import com.valensas.kyc_android.base.BasePresenter
 import com.valensas.kyc_android.identitycamera.model.*
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
+import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet.Type.*
 import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
 import com.valensas.kyc_android.identitycamera.model.tensorflow.Classifier
 import com.valensas.kyc_android.identitycamera.model.tensorflow.TensorFlowImageClassifier
@@ -95,6 +96,18 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     }
 
     fun listenBackIdentityScan() {
+        when (documentItemSet?.type) {
+            DRIVERS_LICENCE -> {
+                qrReader.firebaseQRWrapper.initQRDetector(FirebaseQRWrapper.QR_READER)
+            }
+            IDENTITY_CARD -> {
+                qrReader.firebaseQRWrapper.initQRDetector(FirebaseQRWrapper.BARCODE_READER)
+            }
+            PASSPORT -> TODO()
+            NONE -> TODO()
+            null -> TODO()
+        }
+
         identityCameraView?.getCameraView()?.addFrameProcessor {
             qrReader.process(it)
         }
