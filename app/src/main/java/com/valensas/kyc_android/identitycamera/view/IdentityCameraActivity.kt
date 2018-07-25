@@ -56,12 +56,11 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView {
         setContentView(R.layout.activity_identity_camera)
         identityCameraPresenter = IdentityCameraPresenter()
         identityCameraPresenter?.attach(this)
-        initCamera()
+        TensorFlowDocument()
         initButtonListeners()
     }
 
-    private fun initCamera() {
-
+    private fun TensorFlowDocument() {
     }
 
     private fun initButtonListeners() {
