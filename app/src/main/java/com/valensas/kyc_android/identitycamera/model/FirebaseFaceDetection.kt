@@ -14,7 +14,7 @@ import java.io.ByteArrayOutputStream
 /**
  * Created by Zahit on 19-Jul-18.
  */
-class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter?) {
+class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraPresenter?) {
 
     val firebaseFaceWrapper = FirebaseFaceWrapper()
     var detectionMode = DETECT_IN_DOCUMENT
@@ -141,8 +141,8 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
 
     companion object {
         private const val RIGHT_ANGLE = 90
-        val DETECT_IN_DOCUMENT = 0
-        val DETECT_IN_SELFIE = 1
+        const val DETECT_IN_DOCUMENT = 0
+        const val DETECT_IN_SELFIE = 1
     }
 
 }

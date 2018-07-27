@@ -9,7 +9,10 @@ import android.util.Log
 import com.otaliastudios.cameraview.Frame
 import com.otaliastudios.cameraview.FrameProcessor
 import com.valensas.kyc_android.base.BasePresenter
-import com.valensas.kyc_android.identitycamera.model.*
+import com.valensas.kyc_android.identitycamera.model.AbbyyOCR
+import com.valensas.kyc_android.identitycamera.model.FirebaseFaceDetection
+import com.valensas.kyc_android.identitycamera.model.FirebaseQRReader
+import com.valensas.kyc_android.identitycamera.model.FirebaseQRWrapper
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet.Type.*
 import com.valensas.kyc_android.identitycamera.model.tensorflow.Classifier
@@ -192,7 +195,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         faceDetector.deviceIsUpwards = isUpright
     }
 
-    fun setDocumentType(type: String) {
+    private fun setDocumentType(type: String) {
         abbyyOCR.setDocumentType(type)
     }
 }

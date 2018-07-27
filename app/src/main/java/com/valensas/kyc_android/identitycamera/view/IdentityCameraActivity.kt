@@ -20,7 +20,6 @@ import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_identity_camera.*
 import java.io.ByteArrayOutputStream
-import kotlin.math.absoluteValue
 
 class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEventListener {
 
@@ -64,8 +63,8 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
 
     private fun initializeSensors() {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
     }
 
     private fun initializeFlow() {
@@ -73,7 +72,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
 
-    fun initializeFrontScan() {
+    private fun initializeFrontScan() {
         identityCameraInfoFront.visibility = View.VISIBLE
         identityCameraInfoBack.visibility = View.VISIBLE
         identityCameraInfoImage.visibility = View.GONE
@@ -82,14 +81,14 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         flowState = State.FRONT_SCAN_DURING
     }
 
-    fun initializeBackScan() {
+    private fun initializeBackScan() {
         identityCameraInfoImage.visibility = View.GONE
         identityCameraInfoText.visibility = View.GONE
         identityCameraPresenter?.listenBackIdentityScan()
         flowState = State.BACK_SCAN_DURING
     }
 
-    fun initializeSelfieScan() {
+    private fun initializeSelfieScan() {
         identityCameraInfoImage.visibility = View.GONE
         identityCameraInfoText.visibility = View.GONE
         identityCameraWarningText.visibility = View.VISIBLE
@@ -148,23 +147,23 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
-    var gravity: FloatArray? = null
-    var geomagnetic: FloatArray? = null
+    private var gravity: FloatArray? = null
+    private var geomagnetic: FloatArray? = null
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (event != null) {
-            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            if (event.sensor.type == Sensor.TYPE_ACCELEROMETER)
                 gravity = event.values
-            if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+            if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD)
                 geomagnetic = event.values
             if (gravity != null && geomagnetic != null) {
-                val R = FloatArray(9)
-                val I = FloatArray(9)
+                val r = FloatArray(9)
+                val i = FloatArray(9)
 
-                val success = SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)
+                val success = SensorManager.getRotationMatrix(r, i, gravity, geomagnetic)
                 if (success) {
                     val orientation = FloatArray(3)
-                    SensorManager.getOrientation(R, orientation);
+                    SensorManager.getOrientation(r, orientation)
                     updateDeviceOrientation(orientation[1])
 
                 }
@@ -204,8 +203,8 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     override fun onResume() {
         super.onResume()
         cameraView?.start()
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI)
     }
 
     override fun onPause() {

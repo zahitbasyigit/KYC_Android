@@ -20,23 +20,23 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 private const val REQUEST_CODE = 10
 
-class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeListener {
+class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListener {
 
-    private val fadeInAnimationTime = 1500L
+    private val fadeInAnimationTime = 3000L
     private val permissions = arrayOf(Manifest.permission.CAMERA)
     private var mainPresenter: MainPresenter? = null
     private var mDots: Array<TextView>? = null
-    var sliderAdapter: SliderAdapter? = null
-    var currentPage = 0
+    private var sliderAdapter: SliderAdapter? = null
+    private var currentPage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         sliderAdapter = SliderAdapter(this)
 
-        mDots = Array<TextView>(sliderAdapter?.slide_images!!.size) { TextView(this) }
+        mDots = Array(sliderAdapter?.slide_images!!.size) { TextView(this) }
 
-        viewPagerIntro.setAdapter(sliderAdapter)
+        viewPagerIntro.adapter = sliderAdapter
         mainPresenter = MainPresenter()
         mainPresenter?.attach(this)
 
@@ -69,8 +69,8 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
         for (i in 0 until sliderAdapter?.slide_images!!.size) {
 
             mDots!![i] = TextView(this)
-            mDots!![i].setText(Html.fromHtml("&#8226"))
-            mDots!![i].setTextSize(35F)
+            mDots!![i].text = Html.fromHtml("&#8226")
+            mDots!![i].textSize = 35F
             mDots!![i].setTextColor(getResources().getColor(R.color.transparentwhite))
 
             dotsLayout.addView(mDots!![i])
@@ -169,14 +169,14 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
 
     private fun initButtonListeners() {
         welcome_next_button.setOnClickListener {
-            if (currentPage!! < sliderAdapter?.slide_images!!.size - 1) {
-                viewPagerIntro.setCurrentItem(currentPage!! + 1)
+            if (currentPage < sliderAdapter?.slide_images!!.size - 1) {
+                viewPagerIntro.currentItem = currentPage + 1
             }
 
             if (currentPage == sliderAdapter?.slide_images!!.size - 1) {
 
 
-                if (ContextCompat.checkSelfPermission(this, permissions.get(0)) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED) {
 
                     val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
                     startActivity(intent)
@@ -193,8 +193,8 @@ class MainActivity() : AppCompatActivity(), MainView, ViewPager.OnPageChangeList
         }
 
         welcome_back_button.setOnClickListener {
-            if (currentPage!! < sliderAdapter?.slide_images!!.size) {
-                viewPagerIntro.setCurrentItem(currentPage!! - 1)
+            if (currentPage < sliderAdapter?.slide_images!!.size) {
+                viewPagerIntro.currentItem = currentPage - 1
             }
         }
     }
