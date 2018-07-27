@@ -45,6 +45,8 @@ class TensorFlowImageClassifier private constructor() : Classifier {
 
     override fun recognizeImage(bitmap: Bitmap): List<Classifier.Recognition> {
         // Log this method so that it can be analyzed with systrace.
+
+
         TraceCompat.beginSection("recognizeImage")
 
         TraceCompat.beginSection("preprocessBitmap")
@@ -52,17 +54,17 @@ class TensorFlowImageClassifier private constructor() : Classifier {
         // on the provided parameters.
         bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         for (i in intValues!!.indices) {
-            val `val` = intValues!![i]
-            floatValues?.set(i * 3 + 0, ((`val` shr 16 and 0xFF) - imageMean) / imageStd)
-            floatValues?.set(i * 3 + 1, ((`val` shr 8 and 0xFF) - imageMean) / imageStd)
-            floatValues?.set(i * 3 + 2, ((`val` and 0xFF) - imageMean) / imageStd)
+            val sdf = intValues!![i]
+            floatValues?.set(i * 3 + 0, ((sdf shr 16 and 0xFF) - imageMean) / imageStd)
+            floatValues?.set(i * 3 + 1, ((sdf shr 8 and 0xFF) - imageMean) / imageStd)
+            floatValues?.set(i * 3 + 2, ((sdf and 0xFF) - imageMean) / imageStd)
         }
         TraceCompat.endSection()
 
         // Copy the input data into TensorFlow.
         TraceCompat.beginSection("feed")
         inferenceInterface!!.feed(
-                inputName!!, floatValues!!, *longArrayOf(1, inputSize.toLong(), outputSize.toLong(), 3))
+                inputName!!, floatValues!!, 1, inputSize.toLong(), outputSize.toLong(), 3)
         TraceCompat.endSection()
 
         // Run the inference call.
@@ -109,6 +111,15 @@ class TensorFlowImageClassifier private constructor() : Classifier {
 
     companion object {
 
+        val MODEL_FILE = "file:///android_asset/graph.pb"
+        val LABEL_FILE = "file:///android_asset/labels.txt"
+        val INPUT_WIDTH = 224
+        val INPUT_HEIGHT = 224
+        val IMAGE_MEAN = 128
+        val IMAGE_STD = 128f
+        val INPUT_NAME = "input"
+        val OUTPUT_NAME = "final_result"
+
         private val TAG = "ImageClassifier"
 
         // Only return this many results with at least this confidence.
@@ -131,22 +142,14 @@ class TensorFlowImageClassifier private constructor() : Classifier {
          */
         @Throws(IOException::class)
         fun create(
-                assetManager: AssetManager,
-                modelFilename: String,
-                labelFilename: String,
-                inputWidth: Int,
-                inputHeight: Int,
-                imageMean: Int,
-                imageStd: Float,
-                inputName: String,
-                outputName: String): Classifier {
+                assetManager: AssetManager): Classifier {
             val c = TensorFlowImageClassifier()
-            c.inputName = inputName
-            c.outputName = outputName
+            c.inputName = INPUT_NAME
+            c.outputName = OUTPUT_NAME
 
             // Read the label names into memory.
             // TODO(andrewharp): make this handle non-assets.
-            val actualFilename = labelFilename.split("file:///android_asset/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
+            val actualFilename = LABEL_FILE.split("file:///android_asset/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
             Log.i(TAG, "Reading labels from: $actualFilename")
             var br: BufferedReader? = null
             br = BufferedReader(InputStreamReader(assetManager.open(actualFilename)))
@@ -157,23 +160,23 @@ class TensorFlowImageClassifier private constructor() : Classifier {
             }
             br.close()
 
-            c.inferenceInterface = TensorFlowInferenceInterface(assetManager, modelFilename)
+            c.inferenceInterface = TensorFlowInferenceInterface(assetManager, MODEL_FILE)
             // The shape of the output is [N, NUM_CLASSES], where N is the batch size.
-            val numClasses = c.inferenceInterface!!.graph().operation(outputName).output<Any>(0).shape().size(1).toInt()
+            val numClasses = c.inferenceInterface!!.graph().operation(OUTPUT_NAME).output<Any>(0).shape().size(1).toInt()
             Log.i(TAG, "Read " + c.labels.size + " labels, output layer size is " + numClasses)
 
             // Ideally, inputWidth could have been retrieved from the shape of the input operation.  Alas,
             // the placeholder node for input in the graphdef typically used does not specify a shape, so it
             // must be passed in as a parameter.
-            c.inputSize = inputWidth
-            c.outputSize = inputHeight
-            c.imageMean = imageMean
-            c.imageStd = imageStd
+            c.inputSize = INPUT_WIDTH
+            c.outputSize = INPUT_HEIGHT
+            c.imageMean = IMAGE_MEAN
+            c.imageStd = IMAGE_STD
 
             // Pre-allocate buffers.
-            c.outputNames = arrayOf(outputName)
-            c.intValues = IntArray(inputWidth * inputHeight)
-            c.floatValues = FloatArray(inputWidth * inputHeight * 3)
+            c.outputNames = arrayOf(OUTPUT_NAME)
+            c.intValues = IntArray(INPUT_WIDTH * INPUT_HEIGHT)
+            c.floatValues = FloatArray(INPUT_WIDTH * INPUT_HEIGHT * 3)
             c.outputs = FloatArray(numClasses)
 
             return c

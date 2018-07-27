@@ -19,6 +19,5 @@ interface IdentityCameraView : BaseView {
     fun getDefaultRotation(): Int
     fun getActivityContext(): Context
     fun getActivityAssets(): AssetManager
-    fun showBitmap(frameBitmap: Bitmap?)
 
 }

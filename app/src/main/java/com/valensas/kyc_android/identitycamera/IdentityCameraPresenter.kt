@@ -8,14 +8,14 @@ import android.graphics.YuvImage
 import android.util.Log
 import com.otaliastudios.cameraview.Frame
 import com.otaliastudios.cameraview.FrameProcessor
-import com.valensas.kyc_android.R.id.view
 import com.valensas.kyc_android.base.BasePresenter
 import com.valensas.kyc_android.identitycamera.model.*
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet.Type.*
-import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
 import com.valensas.kyc_android.identitycamera.model.tensorflow.Classifier
 import com.valensas.kyc_android.identitycamera.model.tensorflow.TensorFlowImageClassifier
+import com.valensas.kyc_android.identitycamera.model.tensorflow.TensorFlowImageClassifier.Companion.INPUT_HEIGHT
+import com.valensas.kyc_android.identitycamera.model.tensorflow.TensorFlowImageClassifier.Companion.INPUT_WIDTH
 import com.valensas.kyc_android.identitycamera.view.IdentityCameraView
 import java.io.ByteArrayOutputStream
 
@@ -23,14 +23,6 @@ import java.io.ByteArrayOutputStream
  * Created by Zahit on 17-Jul-18.
  */
 class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
-    val MODEL_FILE = "file:///android_asset/retrained_graph.pb"
-    val LABEL_FILE = "file:///android_asset/retrained_labels.txt"
-    val INPUT_WIDTH = 224
-    val INPUT_HEIGHT = 224
-    val IMAGE_MEAN = 0
-    val IMAGE_STD = 255f
-    val INPUT_NAME = "input"
-    val OUTPUT_NAME = "final_result"
 
     private var identityCameraView: IdentityCameraView? = null
     private var qrReader = FirebaseQRReader(this)
@@ -38,12 +30,12 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var abbyyOCR = AbbyyOCR(this)
     private lateinit var classifier: Classifier
 
-
     private var frontFaceScanProcessor: FrameProcessor? = null
     private var frontTextScanProcessor: FrameProcessor? = null
     private var frontDocumentClassifier: FrameProcessor? = null
     private var frontFaceScanCompleted = false
     private var frontTextScanCompleted = false
+
     private var documentItemSet: DocumentItemSet? = null
     private var faceBitmap: Bitmap? = null
 
@@ -51,9 +43,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         identityCameraView = view
         val assets = identityCameraView?.getActivityAssets()
         assets?.let {
-            classifier = TensorFlowImageClassifier.create(
-                    it, MODEL_FILE, LABEL_FILE, INPUT_WIDTH, INPUT_HEIGHT,
-                    IMAGE_MEAN, IMAGE_STD, INPUT_NAME, OUTPUT_NAME)
+            classifier = TensorFlowImageClassifier.create(it)
         }
 
     }
@@ -75,7 +65,6 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
                 firstTime = false
             }
 
-            this.frame = MyFrame(null, it.rotation, MySize(it.size.width, it.size.height), it.format, true)
             abbyyOCR.receiveBuffer(it.data)
         }
 
@@ -85,9 +74,8 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
         frontDocumentClassifier = FrameProcessor {
             val results = classifier.recognizeImage(convertFrameToBitmap(it))
-            printResult(results)
+            processRecognitionResult(results)
         }
-
 
 
         identityCameraView?.getCameraView()?.addFrameProcessor(frontTextScanProcessor)
@@ -141,6 +129,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
         if (this.frontFaceScanCompleted && this.frontTextScanCompleted) {
             identityCameraView?.getCameraView()?.clearFrameProcessors()
+            classifier.close()
 
             if (documentItemSet != null && faceBitmap != null) {
                 identityCameraView?.frontScanCompleted(documentItemSet!!, faceBitmap!!)
@@ -173,45 +162,37 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         return identityCameraView?.getActivityContext()
     }
 
-    var frame: MyFrame? = null
-
     private fun convertFrameToBitmap(frame: Frame): Bitmap {
         val out = ByteArrayOutputStream()
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
-        yuvImage.compressToJpeg(Rect(0, 0, INPUT_WIDTH, INPUT_HEIGHT), 90, out)
+        yuvImage.compressToJpeg(Rect(0, 0, frame.size.width, frame.size.height), 100, out)
 
         val imageBytes = out.toByteArray()
         val frameBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         out.flush()
         out.close()
 
-        return frameBitmap
+        val scaledBitmap = Bitmap.createScaledBitmap(frameBitmap, INPUT_WIDTH, INPUT_HEIGHT, false)
+        //val rotatedBitmap = rotateImage(scaledBitmap)
+
+        return scaledBitmap
     }
 
-    private fun printResult(result: List<Classifier.Recognition>?) {
+    private fun processRecognitionResult(result: List<Classifier.Recognition>?) {
         if (result != null && result.isEmpty())
             return
 
-        println(result?.get(0)?.title)
+        setDocumentType(result?.get(0)?.title ?: "")
+        println(result?.get(0)?.title + " " + result?.get(0)?.confidence)
 
 
     }
 
-    fun showBuffer(bestBuffer: ByteArray?) {
-        val myFrame = frame
+    fun setDeviceIsUpright(isUpright: Boolean) {
+        faceDetector.deviceIsUpwards = isUpright
+    }
 
-        myFrame?.let {
-
-            val out = ByteArrayOutputStream()
-            val yuvImage = YuvImage(bestBuffer, myFrame.format, myFrame.size.width, myFrame.size.height, null)
-            yuvImage.compressToJpeg(Rect(0, 0, myFrame.size.width, myFrame.size.height), 90, out)
-
-            val imageBytes = out.toByteArray()
-            val frameBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            out.flush()
-            out.close()
-
-            identityCameraView?.showBitmap(frameBitmap)
-        }
+    fun setDocumentType(type: String) {
+        abbyyOCR.setDocumentType(type)
     }
 }

@@ -33,4 +33,10 @@
     <string name="identityResultBirthdate">DOĞUM TARİHİ</string>
     <string name="identityResultTCKN">KİMLİK NUMARASI</string>
 
+    <!-- Identity Result Alert Dialog-->
+    <string name="identityResultBackWarningTitle">rly?</string>
+    <string name="identityResultBackWarningMessage">Emin Misiniz?</string>
+    <string name="identityResultBackWarningPositiveButton">Evet</string>
+    <string name="identityResultBackWarningNegativeButton">Hayır</string>
+
 </resources>

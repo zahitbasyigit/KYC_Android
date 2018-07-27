@@ -18,27 +18,30 @@ class FirebaseFaceDetection(val identityCameraPresenter: IdentityCameraPresenter
 
     val firebaseFaceWrapper = FirebaseFaceWrapper()
     var detectionMode = DETECT_IN_DOCUMENT
+    var deviceIsUpwards = false
 
     fun process(frame: Frame) {
         detectFaceIn(frame)
     }
 
     private fun detectFaceIn(frame: Frame) {
-        frame.data?.let {
-            val myFrame = MyFrame(frame.data.clone(), frame.rotation, MySize(frame.size.width, frame.size.height), frame.format, false)
+        if (deviceIsUpwards || detectionMode == DETECT_IN_DOCUMENT) {
+            frame.data?.let {
+                val myFrame = MyFrame(frame.data.clone(), frame.rotation, MySize(frame.size.width, frame.size.height), frame.format, false)
 
-            firebaseFaceWrapper.process(
-                    image = convertFrameToImage(frame),
-                    onSuccess = {
-                        Log.d("Scanner", "Scanning Faces : ${this.detectionMode}")
-                        if (it.isNotEmpty()) {
-                            val face = it.first()
-                            processImage(face, myFrame)
-                        }
-                    },
-                    onError = {
-                        //Nothing
-                    })
+                firebaseFaceWrapper.process(
+                        image = convertFrameToImage(frame),
+                        onSuccess = {
+                            Log.d("Scanner", "Scanning Faces : ${this.detectionMode}")
+                            if (it.isNotEmpty()) {
+                                val face = it.first()
+                                processImage(face, myFrame)
+                            }
+                        },
+                        onError = {
+                            //Nothing
+                        })
+            }
         }
     }
 

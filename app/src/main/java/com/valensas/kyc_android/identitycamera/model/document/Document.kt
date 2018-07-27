@@ -47,6 +47,14 @@ class Document {
         println(str)
     }
 
+    fun clearDocumentInfo() {
+        for (category in documentItems.keys) {
+            val item = documentItems[category]
+            item?.possibleResults?.clear()
+
+        }
+    }
+
     class Builder {
         private val document = Document()
 
