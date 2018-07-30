@@ -8,13 +8,11 @@ import com.abbyy.mobile.rtr.IRecognitionService
 import com.abbyy.mobile.rtr.ITextCaptureService
 import com.abbyy.mobile.rtr.Language
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
-import com.valensas.kyc_android.identitycamera.model.document.Document
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
 import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
 import com.valensas.kyc_android.identitycamera.model.document.IdentityCard
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
 
@@ -56,23 +54,28 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
             val currentDocument = currentDocumentSet?.document
 
             println(status)
+            warning.let {
+                println(warning?.name)
+            }
 
-            if (status?.ordinal!! < 3)
+
+            if ((status?.ordinal!! <= 3 && currentDocumentSet == driversLicence) || (status?.ordinal < 3 && currentDocumentSet == identityCard))
                 return
 
             var terminate = false
 
             if (lines != null && lines.isNotEmpty() && currentDocument != null && !finalized.get()) {
                 currentDocument.clearDocumentInfo()
+                val texts = createListOfStrings(lines)
 
-                for (line in lines) {
+                for (text in texts) {
                     for (category in currentDocument.documentItems.keys) {
                         val item = currentDocument.documentItems[category]
 
-                        if (!currentDocument.skipWords.contains(line.Text))
-                            item?.attemptToWrite(line.Text)
+                        if (!currentDocument.skipWords.contains(text))
+                            item?.attemptToWrite(text)
                     }
-                    println(line.Text)
+                    println(text)
                     terminate = currentDocument.shouldTerminate()
                 }
                 currentDocument.print()
@@ -165,5 +168,19 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
 
             }
         }
+    }
+
+    fun createListOfStrings(textLines: Array<out ITextCaptureService.TextLine>?): List<String> {
+        val list = mutableListOf<String>()
+
+        if (textLines == null)
+            return list
+
+        for (line in textLines) {
+            val text = line.Text
+            list.addAll(text.split(" "))
+        }
+
+        return list
     }
 }

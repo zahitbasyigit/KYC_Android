@@ -2,6 +2,7 @@ package com.valensas.kyc_android.welcome
 
 import android.Manifest
 import android.animation.Animator
+import android.animation.AnimatorInflater
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,8 @@ import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
@@ -22,7 +25,7 @@ private const val REQUEST_CODE = 10
 
 class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListener {
 
-    private val fadeInAnimationTime = 3000L
+    private val fadeInAnimationTime = 10000L
     private val permissions = arrayOf(Manifest.permission.CAMERA)
     private var mainPresenter: MainPresenter? = null
     private var mDots: Array<TextView>? = null
@@ -119,13 +122,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
         val isFirstRun = getSharedPreferences("PREFERENCE", Context.MODE_PRIVATE)
                 .getBoolean("isFirstRun", true)
 
-        if (!isFirstRun) {
-            crossfadeIn(viewPagerIntro)
-            crossfadeIn(dotsLayout)
-            crossfadeIn(subtitleFirstTextView)
-            crossfadeIn(subtitleSecondTextView)
-            crossfadeIn(welcome_next_button)
-        } else {
+        if (isFirstRun) {
             val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
             startActivity(intent)
         }
@@ -138,33 +135,54 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
     }
 
     private fun initiateCrossFadeOut() {
-        crossfadeOut(titleFirstTextView, false)
-        crossfadeOut(titleSecondTextView, false)
-        crossfadeOut(welcomeOneImageView, true)
-    }
 
+        val fadeoutanim = AnimationUtils.loadAnimation(this, R.anim.fadeout)
+        fadeoutanim.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(anim: Animation?) {
 
-    private fun crossfadeIn(view: View) {
-        view.setAlpha(0f)
-        view.setVisibility(View.VISIBLE)
-        view.animate()
-                .alpha(1f)
-                .setDuration(fadeInAnimationTime)
-                .setListener(null)
-    }
+            }
 
-    private fun crossfadeOut(view: View, startCrossFadeIn: Boolean) {
+            override fun onAnimationEnd(anim: Animation?) {
+                titleFirstTextView.visibility = View.GONE
+                titleSecondTextView.visibility = View.GONE
+                welcomeOneImageView.visibility = View.GONE
+            }
 
-        view.animate()
-                .alpha(0f)
-                .setDuration(fadeInAnimationTime)
-                .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        view.setVisibility(View.GONE)
-                        if (startCrossFadeIn)
-                            initiateCrossFadeIn()
-                    }
-                })
+            override fun onAnimationStart(p0: Animation?) {
+            }
+
+        })
+
+        titleFirstTextView.startAnimation(fadeoutanim)
+        titleSecondTextView.startAnimation(fadeoutanim)
+        welcomeOneImageView.startAnimation(fadeoutanim)
+
+        val fadeinanim = AnimationUtils.loadAnimation(this, R.anim.fadein)
+
+        fadeinanim.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(anim: Animation?) {
+
+            }
+
+            override fun onAnimationEnd(anim: Animation?) {
+                viewPagerIntro.visibility = View.VISIBLE
+                dotsLayout.visibility = View.VISIBLE
+                subtitleFirstTextView.visibility = View.VISIBLE
+                subtitleSecondTextView.visibility = View.VISIBLE
+                welcome_next_button.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationStart(p0: Animation?) {
+            }
+
+        })
+        fadeinanim.startOffset = 1250L
+
+        viewPagerIntro.startAnimation(fadeinanim)
+        dotsLayout.startAnimation(fadeinanim)
+        subtitleFirstTextView.startAnimation(fadeinanim)
+        subtitleSecondTextView.startAnimation(fadeinanim)
+        welcome_next_button.startAnimation(fadeinanim)
     }
 
     private fun initButtonListeners() {
