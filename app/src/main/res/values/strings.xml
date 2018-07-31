@@ -12,6 +12,8 @@
     <string name="identityCameraInfoBackText">Telefonunuzu dik tutup kimliğinizin arka tarafını \n ekrandaki gibi alana yerleştirin.</string>
     <string name="identityCameraInfoSelfieText">Yüz taraması için yüzünüzü net gözükecek şekilde \n ekrandaki alana yaklaştırın</string>
     <string name="identityCameraInfoFrontOK">Tamam</string>
+    <string name="speechRecognitionText">KYC beni sesimden tanır.</string>
+    <string name="speechRecognitionPromptText">"Lütfen aşağıdaki yazıyı okuyunuz."</string>
 
     <!-- Identity Signiture -->
     <string name="identitySignitureRetryButton">Tekrar</string>

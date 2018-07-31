@@ -45,6 +45,10 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
                 initializeSelfieScan()
                 true
             }
+            INITIALIZE_SPEECH_RECOGNITION -> {
+                initializeSpeechRecognition()
+                true
+            }
             else -> {
                 false
             }
@@ -95,6 +99,28 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         flowState = State.SELFIE_SCAN_DURING
     }
 
+    private fun initializeSpeechRecognition() {
+
+
+        identityCameraInfoImage.visibility = View.GONE
+        identityCameraInfoText.visibility = View.GONE
+        speechRecognitionText.visibility = View.VISIBLE
+        identityCameraPresenter?.listenSpeechRecognition()
+        flowState = State.SELFIE_SCAN_DURING
+
+    }
+
+    override fun speechRecognitionCompleted(results: ArrayList<String>){
+        speechRecognitionText.visibility=View.INVISIBLE
+        identityCameraInfoSelfie.visibility = View.VISIBLE
+
+        identityCameraInfoImage.visibility = View.VISIBLE
+        identityCameraInfoText.visibility = View.VISIBLE
+        handler.sendEmptyMessageDelayed(INITIALIZE_SELFIE_SCAN, INFO_READ_WAIT_TIME)
+
+        cameraView.facing = Facing.FRONT
+
+    }
     override fun frontScanCompleted(documentItemSet: DocumentItemSet, faceBitmap: Bitmap) {
         runOnUiThread({
             this.documentItemSet = documentItemSet
@@ -119,13 +145,12 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
 
         identityCameraInfoBack.visibility = View.GONE
         identityCameraInfoFront.visibility = View.GONE
-        identityCameraInfoSelfie.visibility = View.VISIBLE
 
-        identityCameraInfoImage.visibility = View.VISIBLE
-        identityCameraInfoText.visibility = View.VISIBLE
+        speechRecognitionText.visibility = View.VISIBLE
 
-        handler.sendEmptyMessageDelayed(INITIALIZE_SELFIE_SCAN, INFO_READ_WAIT_TIME)
-        cameraView.facing = Facing.FRONT
+
+        handler.sendEmptyMessageDelayed(INITIALIZE_SPEECH_RECOGNITION, INFO_READ_WAIT_TIME)
+
     }
 
     override fun selfieScanCompleted(faceBitmap: Bitmap) {
@@ -227,6 +252,8 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     enum class State {
+        SPEECH_RECOGNITION_PRE,
+        SPEECH_RECOGNITION_DURING,
         FRONT_SCAN_PRE,
         FRONT_SCAN_DURING,
         BACK_SCAN_PRE,
@@ -241,6 +268,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         var INITIALIZE_FRONT_SCAN = 0
         var INITIALIZE_BACK_SCAN = 1
         var INITIALIZE_SELFIE_SCAN = 2
+        var INITIALIZE_SPEECH_RECOGNITION = 3
         var INFO_READ_WAIT_TIME = 1500L
     }
 

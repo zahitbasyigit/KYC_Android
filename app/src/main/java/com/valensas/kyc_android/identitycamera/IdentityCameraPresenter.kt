@@ -9,10 +9,7 @@ import android.util.Log
 import com.otaliastudios.cameraview.Frame
 import com.otaliastudios.cameraview.FrameProcessor
 import com.valensas.kyc_android.base.BasePresenter
-import com.valensas.kyc_android.identitycamera.model.AbbyyOCR
-import com.valensas.kyc_android.identitycamera.model.FirebaseFaceDetection
-import com.valensas.kyc_android.identitycamera.model.FirebaseQRReader
-import com.valensas.kyc_android.identitycamera.model.FirebaseQRWrapper
+import com.valensas.kyc_android.identitycamera.model.*
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet.Type.*
 import com.valensas.kyc_android.identitycamera.model.tensorflow.Classifier
@@ -31,6 +28,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var qrReader = FirebaseQRReader(this)
     private var faceDetector = FirebaseFaceDetection(this)
     private var abbyyOCR = AbbyyOCR(this)
+    private var speechRecognition = SpeechRecognition(this)
     private lateinit var classifier: Classifier
 
     private var frontFaceScanProcessor: FrameProcessor? = null
@@ -109,6 +107,17 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
         identityCameraView?.getCameraView()?.addFrameProcessor {
             faceDetector.process(it)
+        }
+    }
+
+    fun listenSpeechRecognition(){
+
+        speechRecognition.recognizeSpeech()
+    }
+
+    fun speechRecognitionSuccessful(results: ArrayList<String>){
+        if(results!=null){
+        identityCameraView?.speechRecognitionCompleted(results)
         }
     }
 
