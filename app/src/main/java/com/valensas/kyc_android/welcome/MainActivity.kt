@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
         setContentView(R.layout.activity_main)
         sliderAdapter = SliderAdapter(this)
 
-        mDots = Array(sliderAdapter?.slide_images!!.size) { TextView(this) }
+        mDots = Array(sliderAdapter?.slideImages!!.size) { TextView(this) }
 
         viewPagerIntro.adapter = sliderAdapter
         mainPresenter = MainPresenter()
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
     private fun addDotsIndicator(position: Int) {
 
         dotsLayout.removeAllViews()
-        for (i in 0 until sliderAdapter?.slide_images!!.size) {
+        for (i in 0 until sliderAdapter?.slideImages!!.size) {
 
             mDots!![i] = TextView(this)
             mDots!![i].text = Html.fromHtml("&#8226")
@@ -187,20 +187,20 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
 
     private fun initButtonListeners() {
         welcome_next_button.setOnClickListener {
-            if (currentPage < sliderAdapter?.slide_images!!.size - 1) {
+            if (currentPage < sliderAdapter?.slideImages!!.size - 1) {
                 viewPagerIntro.currentItem = currentPage + 1
             }
 
-            if (currentPage == sliderAdapter?.slide_images!!.size - 1) {
+            if (currentPage == sliderAdapter?.slideImages!!.size - 1) {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     requestPermissions(permissions, 10)
                 }
                 if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED) {
 
-                    val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
-                    startActivity(intent)
-
+                    //val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+                    //startActivity(intent)
+                    initSignitureActivity()
                 }
 
 
@@ -208,7 +208,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
         }
 
         welcome_back_button.setOnClickListener {
-            if (currentPage < sliderAdapter?.slide_images!!.size) {
+            if (currentPage < sliderAdapter?.slideImages!!.size) {
                 viewPagerIntro.currentItem = currentPage - 1
             }
         }

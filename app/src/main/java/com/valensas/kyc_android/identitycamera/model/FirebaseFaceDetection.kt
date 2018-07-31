@@ -6,6 +6,7 @@ import android.view.Surface
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark
 import com.otaliastudios.cameraview.Frame
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
 import java.io.ByteArrayOutputStream
@@ -27,6 +28,7 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
     private fun detectFaceIn(frame: Frame) {
         if (deviceIsUpwards || detectionMode == DETECT_IN_DOCUMENT) {
             frame.data?.let {
+                //TODO clone??
                 val myFrame = MyFrame(frame.data.clone(), frame.rotation, MySize(frame.size.width, frame.size.height), frame.format, false)
 
                 firebaseFaceWrapper.process(

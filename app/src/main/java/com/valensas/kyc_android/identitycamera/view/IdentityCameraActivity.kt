@@ -17,6 +17,7 @@ import com.otaliastudios.cameraview.Facing
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
+import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity.State.*
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_identity_camera.*
 import java.io.ByteArrayOutputStream
@@ -62,16 +63,20 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         identityCameraPresenter?.attach(this)
         initializeSensors()
         initializeFlow()
+        //TODO ADD TAP TO FOCUS
     }
 
     private fun initializeSensors() {
+        //TODO initialize sensor during the right scan / remove as it finishes.
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
     }
 
+    //edit this to change the starting scan
     private fun initializeFlow() {
         handler.sendEmptyMessageDelayed(INITIALIZE_FRONT_SCAN, INFO_READ_WAIT_TIME)
+        flowState = FRONT_SCAN_PRE
     }
 
 
@@ -81,14 +86,14 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         identityCameraInfoImage.visibility = View.GONE
         identityCameraInfoText.visibility = View.GONE
         identityCameraPresenter?.listenFrontIdentityScan()
-        flowState = State.FRONT_SCAN_DURING
+        flowState = FRONT_SCAN_DURING
     }
 
     private fun initializeBackScan() {
         identityCameraInfoImage.visibility = View.GONE
         identityCameraInfoText.visibility = View.GONE
         identityCameraPresenter?.listenBackIdentityScan()
-        flowState = State.BACK_SCAN_DURING
+        flowState = BACK_SCAN_DURING
     }
 
     private fun initializeSelfieScan() {
@@ -96,7 +101,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         identityCameraInfoText.visibility = View.GONE
         identityCameraWarningText.visibility = View.VISIBLE
         identityCameraPresenter?.listenSelfieScan()
-        flowState = State.SELFIE_SCAN_DURING
+        flowState = SELFIE_SCAN_DURING
     }
 
     private fun initializeSpeechRecognition() {
@@ -106,12 +111,12 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         identityCameraInfoText.visibility = View.GONE
         speechRecognitionText.visibility = View.VISIBLE
         identityCameraPresenter?.listenSpeechRecognition()
-        flowState = State.SELFIE_SCAN_DURING
+        flowState = SELFIE_SCAN_DURING
 
     }
 
-    override fun speechRecognitionCompleted(results: ArrayList<String>){
-        speechRecognitionText.visibility=View.INVISIBLE
+    override fun speechRecognitionCompleted(results: ArrayList<String>) {
+        speechRecognitionText.visibility = View.INVISIBLE
         identityCameraInfoSelfie.visibility = View.VISIBLE
 
         identityCameraInfoImage.visibility = View.VISIBLE
@@ -121,12 +126,13 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         cameraView.facing = Facing.FRONT
 
     }
+
     override fun frontScanCompleted(documentItemSet: DocumentItemSet, faceBitmap: Bitmap) {
         runOnUiThread({
             this.documentItemSet = documentItemSet
             this.documentFaceBitmap = faceBitmap
             documentItemSet.finalizeDocument()
-            flowState = State.BACK_SCAN_PRE
+            flowState = BACK_SCAN_PRE
             identityCameraInfoFront.setImageResource(R.drawable.kyc_icon_identity_checked)
             identityCameraInfoImage.setImageResource(R.drawable.kyc_identity_back)
             identityCameraInfoText.text = getString(R.string.identityCameraInfoBackText)
@@ -139,7 +145,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     override fun backScanCompleted() {
-        flowState = State.SELFIE_SCAN_PRE
+        flowState = SELFIE_SCAN_PRE
         identityCameraInfoImage.setImageResource(R.drawable.kyc_facescan)
         identityCameraInfoText.text = getString(R.string.identityCameraInfoSelfieText)
 
@@ -154,7 +160,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     override fun selfieScanCompleted(faceBitmap: Bitmap) {
-        flowState = State.COMPLETE
+        flowState = COMPLETE
         identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
 
         //Signature Intent
@@ -196,7 +202,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     private fun updateDeviceOrientation(second: Float) {
-        if (flowState == State.SELFIE_SCAN_DURING) {
+        if (flowState == SELFIE_SCAN_DURING) {
             if (second < -1.4) {
                 identityCameraWarningText.text = "STRAIGHT"
             } else {
@@ -216,7 +222,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     override fun getActivityContext(): Context {
-        return this
+        return applicationContext
     }
 
     override fun getActivityAssets(): AssetManager {
@@ -240,6 +246,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     override fun onDestroy() {
         super.onDestroy()
         identityCameraPresenter?.detach()
+        sensorManager.unregisterListener(this)
     }
 
     private fun putImageToIntent(name: String, intent: Intent, bitmap: Bitmap?) {
@@ -264,7 +271,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     companion object {
-        var flowState = State.FRONT_SCAN_PRE
+        var flowState = FRONT_SCAN_PRE
         var INITIALIZE_FRONT_SCAN = 0
         var INITIALIZE_BACK_SCAN = 1
         var INITIALIZE_SELFIE_SCAN = 2

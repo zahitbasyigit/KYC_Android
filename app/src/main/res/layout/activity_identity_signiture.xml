@@ -56,16 +56,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.valensas.kyc_android.identitysigniture.IdentitySignitureSpinnerView
-            android:id="@+id/spinnerDNAView"
-            android:background="#000000"
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animation_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@+id/spinnerBottomGuideline"
             app:layout_constraintEnd_toStartOf="@+id/spinnerRightGuideline"
             app:layout_constraintLeft_toRightOf="@id/spinnerLeftGuideline"
             app:layout_constraintStart_toStartOf="@+id/spinnerLeftGuideline"
-            app:layout_constraintTop_toTopOf="@+id/spinnerTopGuideline" />
+            app:layout_constraintTop_toTopOf="@+id/spinnerTopGuideline"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="dna_like_loader.json"
+            app:lottie_loop="true" />
 
         <android.support.constraint.Guideline
             android:id="@+id/spinnerBottomGuideline"

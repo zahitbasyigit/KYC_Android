@@ -61,7 +61,8 @@ dependencies {
     //Tensorflow
     implementation 'org.tensorflow:tensorflow-android:1.9.0'
 
-
+    //Lottie
+    implementation 'com.airbnb.android:lottie:2.5.5'
 }
 
 apply plugin: 'com.google.gms.google-services'

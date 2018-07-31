@@ -1,10 +1,8 @@
 package com.valensas.kyc_android
 
 import com.valensas.kyc_android.identitycamera.model.document.Document
-import com.valensas.kyc_android.identitycamera.model.document.DocumentItem
 import com.valensas.kyc_android.identitycamera.model.document.TextProperty
 import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import org.junit.Test
 import java.util.*
 

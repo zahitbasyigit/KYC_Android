@@ -51,7 +51,7 @@ class IdentitySignitureSpinnerView(context: Context, attrs: AttributeSet) : View
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        drawCircles(canvas)
+        //drawCircles(canvas)
     }
 
     private fun drawCircles(canvas: Canvas?) {

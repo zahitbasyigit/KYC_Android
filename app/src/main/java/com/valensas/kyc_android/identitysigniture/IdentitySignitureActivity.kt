@@ -61,7 +61,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
             intent.putExtra("Surname", surname)
             intent.putExtra("TCKN", tckn)
             intent.putExtra("Birthday", birthday)
-            startActivity(intent)
+            //startActivity(intent)
         })
     }
 
