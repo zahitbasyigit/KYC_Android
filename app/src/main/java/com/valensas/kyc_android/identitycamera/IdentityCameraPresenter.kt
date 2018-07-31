@@ -125,6 +125,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         this.documentItemSet = documentItemSet
         identityCameraView?.getCameraView()?.removeFrameProcessor(frontTextScanProcessor)
         abbyyOCR.stopRecognition()
+        classifier.close()
         checkIfFrontScanIsCompleted()
     }
 
@@ -132,7 +133,6 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
         if (this.frontFaceScanCompleted && this.frontTextScanCompleted) {
             identityCameraView?.getCameraView()?.clearFrameProcessors()
-            classifier.close()
 
             if (documentItemSet != null && faceBitmap != null) {
                 identityCameraView?.frontScanCompleted(documentItemSet!!, faceBitmap!!)

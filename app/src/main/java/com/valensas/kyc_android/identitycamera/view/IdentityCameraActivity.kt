@@ -56,7 +56,6 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         setContentView(R.layout.activity_identity_camera)
         identityCameraPresenter = IdentityCameraPresenter()
         identityCameraPresenter?.attach(this)
-
         initializeSensors()
         initializeFlow()
     }
