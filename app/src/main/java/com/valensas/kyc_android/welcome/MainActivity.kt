@@ -26,7 +26,7 @@ private const val REQUEST_CODE = 10
 class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListener {
 
     private val fadeInAnimationTime = 10000L
-    private val permissions = arrayOf(Manifest.permission.CAMERA)
+    private val permissions = arrayOf(Manifest.permission.CAMERA, Manifest.permission.INTERNET, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.RECORD_AUDIO)
     private var mainPresenter: MainPresenter? = null
     private var mDots: Array<TextView>? = null
     private var sliderAdapter: SliderAdapter? = null
@@ -193,17 +193,14 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
 
             if (currentPage == sliderAdapter?.slide_images!!.size - 1) {
 
-
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(permissions, 10)
+                }
                 if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED) {
 
                     val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
                     startActivity(intent)
 
-                } else {
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(permissions, 10)
-                    }
                 }
 
 
