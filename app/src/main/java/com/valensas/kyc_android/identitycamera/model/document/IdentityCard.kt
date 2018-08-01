@@ -11,7 +11,7 @@ class IdentityCard : DocumentItemSet() {
     }
 
     override fun build() {
-        var skipSet = hashSetOf("TÜRKİYE", "CUMHURİYETİ", "KİMLİK", "KARTI", "REPUBLIC", "OF", "TURKEY", "IDENTITY", "CARD",
+        var skipSet = hashSetOf("TÜRKİYE", "IDENTITT", "OFTURKEY", "CUMHURİYETİ", "KİMLİK", "KARTI", "REPUBLIC", "OF", "TURKEY", "IDENTITY", "CARD",
                 "T.C.", "Kimlik", "No", "/", "TR", "Identity", "No", "Soyadı", "Surname", "Adı", "Given Name(s)", "Doğum")
 
         document = Document.Builder()

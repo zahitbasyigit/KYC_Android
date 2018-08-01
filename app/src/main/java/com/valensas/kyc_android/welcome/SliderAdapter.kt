@@ -10,36 +10,35 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.valensas.kyc_android.R
 
-class SliderAdapter(context:Context):PagerAdapter() {
-    internal var context: Context
-    internal lateinit var layoutinflater:LayoutInflater
-    public var slide_images = intArrayOf(R.drawable.kyc_tutorial_rocket, R.drawable.kyc_tutorial_id, R.drawable.kyc_tutorial_face, R.drawable.kyc_tutorial_signature)
-    var slide_texts = arrayOf<String>(context.getString(R.string.welcome_1),context.getString(R.string.welcome_2),context.getString(R.string.welcome_3),context.getString(R.string.welcome_4))
+class SliderAdapter(val context: Context) : PagerAdapter() {
+    private lateinit var layoutInflater: LayoutInflater
+
+    var slideImages = intArrayOf(R.drawable.kyc_tutorial_rocket, R.drawable.kyc_tutorial_id, R.drawable.kyc_tutorial_face, R.drawable.kyc_tutorial_signature)
+    var slideTexts = arrayOf<String>(context.getString(R.string.welcome_1), context.getString(R.string.welcome_2), context.getString(R.string.welcome_3), context.getString(R.string.welcome_4))
 
     override fun getCount(): Int {
-        return slide_images.size    }
-    init{
-        this.context = context
-    }
-    override fun isViewFromObject(view: View?, o: Any?): Boolean {
-       return view ==  o as ConstraintLayout;
+        return slideImages.size
     }
 
-    override fun instantiateItem(container: ViewGroup?, position: Int): Any {
-        layoutinflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-         var view: View = layoutinflater.inflate(R.layout.welcome_2, container, false)
+    override fun isViewFromObject(view: View, o: Any): Boolean {
+        return view == o as ConstraintLayout;
+    }
 
-        var slideImageView: ImageView = view.findViewById(R.id.welcomeImageView)
-        var slideTextView: TextView = view.findViewById(R.id.welcomeTextView)
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view: View = layoutInflater.inflate(R.layout.welcome_2, container, false)
 
-        slideImageView.setImageResource(slide_images[position])
-        slideTextView.setText(slide_texts[position])
+        val slideImageView: ImageView = view.findViewById(R.id.welcomeImageView)
+        val slideTextView: TextView = view.findViewById(R.id.welcomeTextView)
 
-        container?.addView(view)
+        slideImageView.setImageResource(slideImages[position])
+        slideTextView.text = slideTexts[position]
+
+        container.addView(view)
         return view;
     }
 
-    override fun destroyItem(container: ViewGroup?, position: Int, o: Any?) {
-        container?.removeView(o as ConstraintLayout)
+    override fun destroyItem(container: ViewGroup, position: Int, o: Any) {
+        container.removeView(o as ConstraintLayout)
     }
 }

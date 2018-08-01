@@ -70,6 +70,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
         })
 
         identitySignitureContinueButton.setOnClickListener({
+            identitySignitureDrawView.allowInput = false
             identitySignitureRetryButton.setTextColor(Color.BLACK)
             identitySignitureContinueButton.setTextColor(Color.BLACK)
             spinnerView.visibility = View.VISIBLE
@@ -155,7 +156,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
         if (bitmap != null) {
             val bs = ByteArrayOutputStream()
             val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false)
-            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 50, bs)
+            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, bs)
             intent.putExtra(name, bs.toByteArray())
         }
     }

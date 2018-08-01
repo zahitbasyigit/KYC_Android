@@ -13,7 +13,6 @@ import com.valensas.kyc_android.identitycamera.model.document.DriversLicence
 import com.valensas.kyc_android.identitycamera.model.document.IdentityCard
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.locks.ReentrantLock
 
 
 /**
@@ -32,7 +31,7 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
     private var driversLicence = DriversLicence()
     private var identityCard = IdentityCard()
 
-    private var currentDocumentSet: DocumentItemSet? = null
+    private var currentDocumentSet: DocumentItemSet? = driversLicence
     private var finalized = AtomicBoolean(false)
 
 
@@ -43,24 +42,26 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
             changeBuffer.set(true)
         }
 
-        val l = ReentrantLock()
 
         override fun onFrameProcessed(
                 lines: Array<out ITextCaptureService.TextLine>?,
                 status: IRecognitionService.ResultStabilityStatus?,
                 warning: IRecognitionService.Warning?) {
 
+            println(status)
+
             val currentDocumentSet = currentDocumentSet
             val currentDocument = currentDocumentSet?.document
 
-            println(status)
-            warning.let {
-                println(warning?.name)
+            if (currentDocumentSet == driversLicence) {
+                if (status?.ordinal!! <= 3)
+                    return
+            } else if (currentDocumentSet == identityCard) {
+                if (status?.ordinal!! < 3) {
+                    return
+                }
             }
 
-
-            if ((status?.ordinal!! <= 3 && currentDocumentSet == driversLicence) || (status?.ordinal < 3 && currentDocumentSet == identityCard))
-                return
 
             var terminate = false
 
@@ -75,7 +76,7 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
                         if (!currentDocument.skipWords.contains(text))
                             item?.attemptToWrite(text)
                     }
-                    println(text)
+
                     terminate = currentDocument.shouldTerminate()
                 }
                 currentDocument.print()
@@ -138,20 +139,8 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
     }
 
     fun fillBuffer(buffer: ByteArray?) {
-        copyContents(currentBuffer, buffer)
+        currentBuffer?.size?.let { System.arraycopy(currentBuffer, 0, buffer, 0, it) }
         textCaptureService?.submitRequestedFrame(buffer)
-    }
-
-    fun copyContents(from: ByteArray?, to: ByteArray?) {
-        if (from != null && to != null) {
-            if (from.size > to.size) {
-                println("From is greater than to! Cannot copy! From: ${from.size},To: ${to.size}")
-            } else {
-                for (i in from.indices) {
-                    to[i] = from[i]
-                }
-            }
-        }
     }
 
     fun setDocumentType(type: String) {

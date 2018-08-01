@@ -11,7 +11,7 @@ class DriversLicence : DocumentItemSet() {
     }
 
     override fun build() {
-        var skipSet = hashSetOf("TR", "SÜRÜCÜ", "BELGESİ", "DRIVING", "LICENCE", "TÜRKİYE", "CUMHURİYETİ", "UCENCE")
+        var skipSet = hashSetOf("TR", "SÜRÜCÜ", "BELGESİ", "BELGESI", "DRIVING", "LICENCE", "TÜRKİYE", "CUMHURİYETİ", "UCENCE", "F", "M", "B", "B1", "D1")
 
         document = Document.Builder()
                 .addCategory("surname", "", listOf("1. ", "1.", "1", ""), TextProperty.ALL_CAPS_TEXT, 1, 1)
