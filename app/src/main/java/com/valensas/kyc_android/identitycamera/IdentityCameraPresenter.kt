@@ -28,7 +28,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var qrReader = FirebaseQRReader(this)
     private var faceDetector = FirebaseFaceDetection(this)
     private var abbyyOCR = AbbyyOCR(this)
-    private var speechRecognition = SpeechRecognition(this)
+    private lateinit var speechRecognition: SpeechRecognition
     private lateinit var classifier: Classifier
 
     private var frontFaceScanProcessor: FrameProcessor? = null
@@ -47,10 +47,13 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
             classifier = TensorFlowImageClassifier.create(it)
         }
 
+        speechRecognition = SpeechRecognition(this)
+
     }
 
     override fun detach() {
         identityCameraView = null
+        speechRecognition.speech.destroy()
     }
 
     fun listenFrontIdentityScan() {
@@ -115,7 +118,6 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     }
 
     fun listenSpeechRecognition() {
-
         speechRecognition.recognizeSpeech()
     }
 
@@ -132,6 +134,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         this.frontTextScanCompleted = true
         this.documentItemSet = documentItemSet
         identityCameraView?.getCameraView()?.removeFrameProcessor(frontTextScanProcessor)
+        identityCameraView?.getCameraView()?.removeFrameProcessor(frontDocumentClassifier)
         abbyyOCR.stopRecognition()
         classifier.close()
         checkIfFrontScanIsCompleted()
@@ -159,12 +162,16 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         }
     }
 
+    fun speechRecognitionTextAvailable(required: String) {
+        identityCameraView?.setSpeechRecognitionText(required)
+    }
+
     fun speechRecognitionSuccessful(found: String) {
         identityCameraView?.speechRecognitionCompleted(found)
     }
 
-    fun speechRecognitionUnsuccessful(found: String, required: String) {
-        identityCameraView?.speechRecognitionFailed("Error, required : $required , found : $found")
+    fun speechRecognitionUnsuccessful(message: String) {
+        identityCameraView?.speechRecognitionFailed(message)
     }
 
     fun selfieFaceScanSuccessful(faceBitmap: Bitmap) {

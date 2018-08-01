@@ -148,22 +148,25 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
 
     override fun backScanCompleted() {
         flowState = SPEECH_RECOGNITION_PRE
-        identityCameraInfoImage.setImageResource(R.drawable.kyc_facescan)
-        identityCameraInfoText.text = getString(R.string.identityCameraInfoSelfieText)
 
+        identityCameraInfoBack.setImageResource(R.drawable.kyc_icon_identity_checked)
         identityCameraInfoBack.visibility = View.GONE
         identityCameraInfoFront.visibility = View.GONE
-
         speechRecognitionText.visibility = View.VISIBLE
         handler.sendEmptyMessageDelayed(INITIALIZE_SPEECH_RECOGNITION, INFO_READ_WAIT_TIME)
 
     }
 
-    override fun speechRecognitionCompleted(result: String) {
+    override fun speechRecognitionCompleted(message: String) {
         flowState = SELFIE_SCAN_PRE
-        speechRecognitionText.visibility = View.INVISIBLE
-        identityCameraInfoSelfie.visibility = View.VISIBLE
+        speechRecognitionText.visibility = View.GONE
 
+        identityCameraInfoSelfie.visibility = View.VISIBLE
+        identityCameraInfoImage.setImageResource(R.drawable.kyc_facescan)
+
+        identityCameraInfoBack.visibility = View.GONE
+        identityCameraInfoFront.visibility = View.GONE
+        identityCameraInfoText.text = getString(R.string.identityCameraInfoSelfieText)
         identityCameraInfoImage.visibility = View.VISIBLE
         identityCameraInfoText.visibility = View.VISIBLE
         handler.sendEmptyMessageDelayed(INITIALIZE_SELFIE_SCAN, INFO_READ_WAIT_TIME)
@@ -172,8 +175,11 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
 
     }
 
-    override fun speechRecognitionFailed(result: String) {
-        
+    override fun speechRecognitionFailed(message: String) {
+        flowState = SPEECH_RECOGNITION_PRE
+        speechRecognitionText.text = message
+        speechRecognitionText.visibility = View.VISIBLE
+        handler.sendEmptyMessageDelayed(INITIALIZE_SPEECH_RECOGNITION, INFO_READ_WAIT_TIME)
     }
 
     override fun selfieScanCompleted(faceBitmap: Bitmap) {
@@ -239,7 +245,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     override fun getActivityContext(): Context {
-        return applicationContext
+        return this
     }
 
     override fun getActivityAssets(): AssetManager {
@@ -262,6 +268,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
 
     override fun onDestroy() {
         super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
         identityCameraPresenter?.detach()
         sensorManager.unregisterListener(this)
     }
@@ -279,6 +286,9 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         identityCameraWarningText.text = "Y angle : $y, Z angle : $z"
     }
 
+    override fun setSpeechRecognitionText(required: String) {
+        speechRecognitionText.text = required
+    }
 
     enum class State {
         SPEECH_RECOGNITION_PRE,

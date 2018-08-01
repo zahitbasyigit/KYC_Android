@@ -13,20 +13,13 @@ import java.util.*
 class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) : RecognitionListener {
 
     private val LOG_TAG = "SpeechRecognition"
-    private lateinit var speech: SpeechRecognizer
-    private lateinit var recognizerIntent: Intent
+    var speech: SpeechRecognizer
+    private var recognizerIntent: Intent
     private lateinit var requiredSpeech: String
     private var speechFactory = SpeechFactory()
 
-
-    fun recognizeSpeech() {
-        requiredSpeech = speechFactory.createRandomSpeech()
-
-        identityCameraPresenter?.speechRecognitionSuccessful("yay")
-        return
-
+    init {
         speech = SpeechRecognizer.createSpeechRecognizer(identityCameraPresenter?.getContext());
-        Log.i(LOG_TAG, "isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(identityCameraPresenter?.getContext()));
         speech.setRecognitionListener(this);
         recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
@@ -36,13 +29,18 @@ class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) :
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+    }
 
+    fun recognizeSpeech() {
+        requiredSpeech = speechFactory.createRandomSpeech()
+        identityCameraPresenter?.speechRecognitionTextAvailable(requiredSpeech)
         speech.startListening(recognizerIntent);
 
+        Log.i(LOG_TAG, "isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(identityCameraPresenter?.getContext()));
     }
 
 
-    fun getErrorText(errorCode: Int): String {
+    private fun getErrorText(errorCode: Int): String {
         val message: String
         when (errorCode) {
             SpeechRecognizer.ERROR_AUDIO -> message = "Audio recording error"
@@ -88,11 +86,16 @@ class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) :
     }
 
     override fun onError(errorCode: Int) {
+        speech.cancel()
+
         val errorMessage = getErrorText(errorCode)
         Log.d(LOG_TAG, "FAILED $errorMessage")
+        identityCameraPresenter?.speechRecognitionUnsuccessful(errorMessage)
     }
 
     override fun onResults(results: Bundle?) {
+        speech.cancel()
+
         Log.i(LOG_TAG, "onResults")
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         var text = ""
@@ -106,14 +109,15 @@ class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) :
         if (matches != null && textsMatch(requiredSpeech, text)) {
             identityCameraPresenter?.speechRecognitionSuccessful(text)
         } else {
-            identityCameraPresenter?.speechRecognitionUnsuccessful(text, requiredSpeech)
+            identityCameraPresenter?.speechRecognitionUnsuccessful("Error, required : $requiredSpeech , found : $text")
         }
 
 
     }
 
     fun textsMatch(required: String, given: String): Boolean {
-        return calculate(required, given) < 1 * required.split(" ").size // 1 misspelling per word
+        return true
+        //return calculate(required, given) < 1 * required.split(" ").size // 1 misspelling per word
     }
 
     fun calculate(x: String, y: String): Int {
