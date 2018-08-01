@@ -7,15 +7,28 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.amazonaws.auth.CognitoCachingCredentialsProvider
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identityresult.IdentityResultActivity
 import kotlinx.android.synthetic.main.activity_identity_signiture.*
 import java.io.ByteArrayOutputStream
+import com.amazonaws.mobile.client.AWSMobileClient
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.rekognition.AmazonRekognition
+import com.amazonaws.services.rekognition.AmazonRekognitionClient
+import com.amazonaws.services.rekognition.model.Image
+import com.amazonaws.services.rekognition.model.BoundingBox
+import com.amazonaws.services.rekognition.model.CompareFacesMatch
+import com.amazonaws.services.rekognition.model.CompareFacesRequest
+import com.amazonaws.services.rekognition.model.CompareFacesResult
+import com.amazonaws.services.rekognition.model.ComparedFace
+import java.nio.ByteBuffer
 
 
 class IdentitySignitureActivity : AppCompatActivity() {
@@ -27,14 +40,21 @@ class IdentitySignitureActivity : AppCompatActivity() {
     private var name: String? = null
     private var surname: String? = null
     private var birthday: String? = null
+    private lateinit var faceSelfieByteArray: ByteBuffer
+    private lateinit var faceScanByteArray: ByteBuffer
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identity_signiture)
+        AWSMobileClient.getInstance().initialize(this) {
+            Log.d("aws", "AWSMobileClient is initialized")
+        }.execute()
 
         faceSelfieBitmap = loadImageFromBundle("SelfieFace")
         faceScannedBitmap = loadImageFromBundle("DocumentFace")
+        faceSelfieByteArray = loadByteArrayfromBundle("SelfieFace")
+        faceScanByteArray = loadByteArrayfromBundle("DocumentFace")
         tckn = intent?.getStringExtra("TCKN")
         name = intent?.getStringExtra("Name")
         surname = intent?.getStringExtra("Surname")
@@ -53,7 +73,42 @@ class IdentitySignitureActivity : AppCompatActivity() {
             identitySignitureRetryButton.setTextColor(Color.BLACK)
             identitySignitureContinueButton.setTextColor(Color.BLACK)
             spinnerView.visibility = View.VISIBLE
+
+            val credentialsProvider = CognitoCachingCredentialsProvider(
+                    applicationContext, /* get the context for the application */
+                    "COGNITO_IDENTITY_POOL", /* Identity Pool ID */
+                    Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+            )
+
+            val client = AmazonRekognitionClient(credentialsProvider)
+
+
+            val source = Image()
+                    .withBytes(faceSelfieByteArray)
+            val target = Image()
+                    .withBytes(faceScanByteArray)
+
+            val request = CompareFacesRequest()
+                    .withSourceImage(source)
+                    .withTargetImage(target)
+                    .withSimilarityThreshold(60F)
+
+            // Call operation
+            val compareFacesResult = client.compareFaces(request)
+
+
+            // Display results
+            val faceDetails = compareFacesResult.getFaceMatches()
+            val match =faceDetails[0]
+            val face = match.getFace()
+            val facesimilarity = face.confidence
+
+
+
+
             intent = Intent(this, IdentityResultActivity::class.java)
+            intent.putExtra("FaceSimilarityPercentage", facesimilarity)
+
             putImageToIntent("DrawnSigniture", intent, identitySignitureDrawView.bitmap)
             putImageToIntent("SelfieFace", intent, faceSelfieBitmap)
             putImageToIntent("DocumentFace", intent, faceScannedBitmap)
@@ -110,5 +165,11 @@ class IdentitySignitureActivity : AppCompatActivity() {
             return BitmapFactory.decodeByteArray(getIntent().getByteArrayExtra(name), 0, getIntent().getByteArrayExtra(name).size)
         }
         return null
+    }
+
+    private fun loadByteArrayfromBundle(name:String): ByteBuffer {
+
+            return ByteBuffer.wrap(getIntent().getByteArrayExtra(name))
+
     }
 }

@@ -61,6 +61,14 @@ dependencies {
     //Tensorflow
     implementation 'org.tensorflow:tensorflow-android:1.9.0'
 
+    //aws
+    implementation 'com.amazonaws:aws-android-sdk-core:2.6.+'
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
+    implementation 'com.amazonaws:aws-android-sdk-ddb:2.6.+'
+        implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.+@aar') { transitive = true }
+    implementation 'com.amazonaws:aws-android-sdk-rekognition:2.6.+'
+
+
 
 }
 
