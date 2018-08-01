@@ -5,16 +5,11 @@ import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.support.v4.os.TraceCompat
 import android.util.Log
-
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface
-
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import java.util.ArrayList
-import java.util.Comparator
-import java.util.PriorityQueue
-import java.util.Vector
+import java.util.*
 
 /**
  * A classifier specialized to label images using TensorFlow.

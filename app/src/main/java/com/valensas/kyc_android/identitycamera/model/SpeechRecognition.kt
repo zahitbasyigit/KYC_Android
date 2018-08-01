@@ -1,35 +1,34 @@
 package com.valensas.kyc_android.identitycamera.model
 
+import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
-import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
-import android.content.Intent
-import android.speech.RecognizerIntent
-import android.support.v4.app.ActivityCompat
-import com.valensas.kyc_android.Manifest
-import android.widget.Toast
-import android.content.pm.PackageManager
-import android.support.annotation.NonNull
-import com.valensas.kyc_android.R
+import java.util.*
 
 
-class SpeechRecognition( val identityCameraPresenter: IdentityCameraPresenter?): RecognitionListener {
+class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) : RecognitionListener {
 
     private val LOG_TAG = "SpeechRecognition"
     private lateinit var speech: SpeechRecognizer
     private lateinit var recognizerIntent: Intent
+    private lateinit var requiredSpeech: String
+    private var speechFactory = SpeechFactory()
 
 
     fun recognizeSpeech() {
-        //Toast.makeText(identityCameraPresenter?.getContext(), getString(R.string.speechRecognitionPromptText), Toast.LENGTH_LONG).show()
+        requiredSpeech = speechFactory.createRandomSpeech()
+
+        identityCameraPresenter?.speechRecognitionSuccessful("yay")
+        return
+
         speech = SpeechRecognizer.createSpeechRecognizer(identityCameraPresenter?.getContext());
         Log.i(LOG_TAG, "isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(identityCameraPresenter?.getContext()));
         speech.setRecognitionListener(this);
-        recognizerIntent =  Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
                 "tr");
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
@@ -41,7 +40,6 @@ class SpeechRecognition( val identityCameraPresenter: IdentityCameraPresenter?):
         speech.startListening(recognizerIntent);
 
     }
-
 
 
     fun getErrorText(errorCode: Int): String {
@@ -60,6 +58,7 @@ class SpeechRecognition( val identityCameraPresenter: IdentityCameraPresenter?):
         }
         return message
     }
+
     override fun onReadyForSpeech(p0: Bundle?) {
         Log.i(LOG_TAG, "onReadyForSpeech");
     }
@@ -90,7 +89,8 @@ class SpeechRecognition( val identityCameraPresenter: IdentityCameraPresenter?):
 
     override fun onError(errorCode: Int) {
         val errorMessage = getErrorText(errorCode)
-        Log.d(LOG_TAG, "FAILED $errorMessage")    }
+        Log.d(LOG_TAG, "FAILED $errorMessage")
+    }
 
     override fun onResults(results: Bundle?) {
         Log.i(LOG_TAG, "onResults")
@@ -98,23 +98,55 @@ class SpeechRecognition( val identityCameraPresenter: IdentityCameraPresenter?):
         var text = ""
         if (matches != null) {
             for (result in matches)
-                text += result + "\n"
+                text += result + " "
         }
 
-       Log.i( LOG_TAG, text)
+        Log.i(LOG_TAG, text)
 
-       var matched = false
-        if (matches != null) {
-            for (match in matches) {
-                if (match.contains("KYC") || match.contains("beni")|| match.contains ("KYC") || match.contains("beni"))
-                    matched = true
+        if (matches != null && textsMatch(requiredSpeech, text)) {
+            identityCameraPresenter?.speechRecognitionSuccessful(text)
+        } else {
+            identityCameraPresenter?.speechRecognitionUnsuccessful(text, requiredSpeech)
+        }
+
+
+    }
+
+    fun textsMatch(required: String, given: String): Boolean {
+        return calculate(required, given) < 1 * required.split(" ").size // 1 misspelling per word
+    }
+
+    fun calculate(x: String, y: String): Int {
+        val dp = Array(x.length + 1) { IntArray(y.length + 1) }
+
+        for (i in 0..x.length) {
+            for (j in 0..y.length) {
+                if (i == 0) {
+                    dp[i][j] = j
+                } else if (j == 0) {
+                    dp[i][j] = i
+                } else {
+                    dp[i][j] = min(dp[i - 1][j - 1] + costOfSubstitution(x[i - 1], y[j - 1]),
+                            dp[i - 1][j] + 1,
+                            dp[i][j - 1] + 1)
+                }
             }
-                if(matched)
-                    speech.stopListening();
-
-
-            identityCameraPresenter?.speechRecognitionSuccessful(matches)
-
         }
+
+        return dp[x.length][y.length]
+    }
+
+    private fun costOfSubstitution(a: Char, b: Char): Int {
+        return if (a == b) 0 else 1
+    }
+
+    private fun min(vararg numbers: Int): Int {
+        var min = Integer.MAX_VALUE
+
+        for (number in numbers) {
+            if (number < min) min = number
+        }
+
+        return min
     }
 }

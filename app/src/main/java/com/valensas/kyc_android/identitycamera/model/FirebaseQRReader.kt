@@ -4,8 +4,8 @@ import android.util.Log
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.otaliastudios.cameraview.Frame
-import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
+import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
 
 /**
  * Created by Zahit on 16-Jul-18.

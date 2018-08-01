@@ -1,12 +1,10 @@
 package com.valensas.kyc_android.welcome
 
 import android.Manifest
-import android.animation.Animator
-import android.animation.AnimatorInflater
-import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -19,7 +17,10 @@ import android.view.animation.AnimationUtils
 import android.widget.TextView
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
+import com.valensas.kyc_android.identityresult.IdentityResultActivity
+import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.ByteArrayOutputStream
 
 private const val REQUEST_CODE = 10
 
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
         setContentView(R.layout.activity_main)
         sliderAdapter = SliderAdapter(this)
 
-        mDots = Array(sliderAdapter?.slide_images!!.size) { TextView(this) }
+        mDots = Array(sliderAdapter?.slideImages!!.size) { TextView(this) }
 
         viewPagerIntro.adapter = sliderAdapter
         mainPresenter = MainPresenter()
@@ -47,7 +48,6 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
         viewPagerIntro.addOnPageChangeListener(this)
         initButtonListeners()
         initiateCrossFadeOut()
-
     }
 
 
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
     private fun addDotsIndicator(position: Int) {
 
         dotsLayout.removeAllViews()
-        for (i in 0 until sliderAdapter?.slide_images!!.size) {
+        for (i in 0 until sliderAdapter?.slideImages!!.size) {
 
             mDots!![i] = TextView(this)
             mDots!![i].text = Html.fromHtml("&#8226")
@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
                 .getBoolean("isFirstRun", true)
 
         if (isFirstRun) {
-            val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+            val intent = Intent(this, IdentityCameraActivity::class.java)
             startActivity(intent)
         }
 
@@ -187,11 +187,11 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
 
     private fun initButtonListeners() {
         welcome_next_button.setOnClickListener {
-            if (currentPage < sliderAdapter?.slide_images!!.size - 1) {
+            if (currentPage < sliderAdapter?.slideImages!!.size - 1) {
                 viewPagerIntro.currentItem = currentPage + 1
             }
 
-            if (currentPage == sliderAdapter?.slide_images!!.size - 1) {
+            if (currentPage == sliderAdapter?.slideImages!!.size - 1) {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     requestPermissions(permissions, 10)
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
 
                     val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
                     startActivity(intent)
-
+                    //initSignitureActivity()
                 }
 
 
@@ -208,9 +208,32 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
         }
 
         welcome_back_button.setOnClickListener {
-            if (currentPage < sliderAdapter?.slide_images!!.size) {
+            if (currentPage < sliderAdapter?.slideImages!!.size) {
                 viewPagerIntro.currentItem = currentPage - 1
             }
+        }
+    }
+
+    private fun initResultActivityWithDummyData() {
+        intent = Intent(this, IdentityResultActivity::class.java)
+        intent.putExtra("Name", "Zahit")
+        intent.putExtra("Surname", "Başyiğit")
+        intent.putExtra("TCKN", "36049905174")
+        intent.putExtra("Birthday", "12.11.1996")
+        startActivity(intent)
+    }
+
+    private fun initSignitureActivity() {
+        intent = Intent(this, IdentitySignitureActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun putImageToIntent(name: String, intent: Intent, bitmap: Bitmap?) {
+        if (bitmap != null) {
+            val bs = ByteArrayOutputStream()
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false)
+            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 50, bs)
+            intent.putExtra(name, bs.toByteArray())
         }
     }
 }

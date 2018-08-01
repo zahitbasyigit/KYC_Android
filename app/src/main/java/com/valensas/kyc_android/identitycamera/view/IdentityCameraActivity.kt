@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.AssetManager
 import android.graphics.Bitmap
+import android.graphics.Camera
+import android.graphics.PointF
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -12,11 +14,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.otaliastudios.cameraview.CameraView
-import com.otaliastudios.cameraview.Facing
+import com.otaliastudios.cameraview.*
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
 import com.valensas.kyc_android.identitycamera.model.document.DocumentItemSet
+import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity.State.*
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_identity_camera.*
 import java.io.ByteArrayOutputStream
@@ -60,21 +62,35 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         setContentView(R.layout.activity_identity_camera)
         identityCameraPresenter = IdentityCameraPresenter()
         identityCameraPresenter?.attach(this)
-
         initializeSensors()
         initializeFlow()
+        initializeCamera()
     }
 
     private fun initializeSensors() {
+        //TODO initialize sensor during the right scan / remove as it finishes.
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
     }
 
+    //edit this to change the starting scan
     private fun initializeFlow() {
         handler.sendEmptyMessageDelayed(INITIALIZE_FRONT_SCAN, INFO_READ_WAIT_TIME)
+        flowState = FRONT_SCAN_PRE
     }
 
+    private fun initializeCamera() {
+        cameraView?.mapGesture(Gesture.TAP, GestureAction.FOCUS_WITH_MARKER)
+    }
+
+    val focusListener = object : CameraListener() {
+        override fun onFocusEnd(successful: Boolean, point: PointF?) {
+            super.onFocusEnd(successful, point)
+            if (successful)
+                identityCameraPresenter?.listenFrontFaceScan()
+        }
+    }
 
     private fun initializeFrontScan() {
         identityCameraInfoFront.visibility = View.VISIBLE
@@ -82,14 +98,24 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         identityCameraInfoImage.visibility = View.GONE
         identityCameraInfoText.visibility = View.GONE
         identityCameraPresenter?.listenFrontIdentityScan()
-        flowState = State.FRONT_SCAN_DURING
+        flowState = FRONT_SCAN_DURING
+
+        cameraView?.addCameraListener(focusListener)
     }
 
     private fun initializeBackScan() {
         identityCameraInfoImage.visibility = View.GONE
         identityCameraInfoText.visibility = View.GONE
         identityCameraPresenter?.listenBackIdentityScan()
-        flowState = State.BACK_SCAN_DURING
+        flowState = BACK_SCAN_DURING
+    }
+
+    private fun initializeSpeechRecognition() {
+        identityCameraInfoImage.visibility = View.GONE
+        identityCameraInfoText.visibility = View.GONE
+        speechRecognitionText.visibility = View.VISIBLE
+        identityCameraPresenter?.listenSpeechRecognition()
+        flowState = SPEECH_RECOGNITION_DURING
     }
 
     private fun initializeSelfieScan() {
@@ -97,22 +123,45 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         identityCameraInfoText.visibility = View.GONE
         identityCameraWarningText.visibility = View.VISIBLE
         identityCameraPresenter?.listenSelfieScan()
-        flowState = State.SELFIE_SCAN_DURING
+        flowState = SELFIE_SCAN_DURING
     }
 
-    private fun initializeSpeechRecognition() {
 
+    override fun frontScanCompleted(documentItemSet: DocumentItemSet, faceBitmap: Bitmap) {
+        runOnUiThread({
+            this.documentItemSet = documentItemSet
+            this.documentFaceBitmap = faceBitmap
+            documentItemSet.finalizeDocument()
+            flowState = BACK_SCAN_PRE
+            identityCameraInfoFront.setImageResource(R.drawable.kyc_icon_identity_checked)
+            identityCameraInfoImage.setImageResource(R.drawable.kyc_identity_back)
+            identityCameraInfoText.text = getString(R.string.identityCameraInfoBackText)
 
-        identityCameraInfoImage.visibility = View.GONE
-        identityCameraInfoText.visibility = View.GONE
+            identityCameraInfoImage.visibility = View.VISIBLE
+            identityCameraInfoText.visibility = View.VISIBLE
+
+            cameraView?.removeCameraListener(focusListener)
+
+            handler.sendEmptyMessageDelayed(INITIALIZE_BACK_SCAN, INFO_READ_WAIT_TIME)
+        })
+    }
+
+    override fun backScanCompleted() {
+        flowState = SPEECH_RECOGNITION_PRE
+        identityCameraInfoImage.setImageResource(R.drawable.kyc_facescan)
+        identityCameraInfoText.text = getString(R.string.identityCameraInfoSelfieText)
+
+        identityCameraInfoBack.visibility = View.GONE
+        identityCameraInfoFront.visibility = View.GONE
+
         speechRecognitionText.visibility = View.VISIBLE
-        identityCameraPresenter?.listenSpeechRecognition()
-        flowState = State.SELFIE_SCAN_DURING
+        handler.sendEmptyMessageDelayed(INITIALIZE_SPEECH_RECOGNITION, INFO_READ_WAIT_TIME)
 
     }
 
-    override fun speechRecognitionCompleted(results: ArrayList<String>){
-        speechRecognitionText.visibility=View.INVISIBLE
+    override fun speechRecognitionCompleted(result: String) {
+        flowState = SELFIE_SCAN_PRE
+        speechRecognitionText.visibility = View.INVISIBLE
         identityCameraInfoSelfie.visibility = View.VISIBLE
 
         identityCameraInfoImage.visibility = View.VISIBLE
@@ -122,40 +171,13 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         cameraView.facing = Facing.FRONT
 
     }
-    override fun frontScanCompleted(documentItemSet: DocumentItemSet, faceBitmap: Bitmap) {
-        runOnUiThread({
-            this.documentItemSet = documentItemSet
-            this.documentFaceBitmap = faceBitmap
-            documentItemSet.finalizeDocument()
-            flowState = State.BACK_SCAN_PRE
-            identityCameraInfoFront.setImageResource(R.drawable.kyc_icon_identity_checked)
-            identityCameraInfoImage.setImageResource(R.drawable.kyc_identity_back)
-            identityCameraInfoText.text = getString(R.string.identityCameraInfoBackText)
 
-            identityCameraInfoImage.visibility = View.VISIBLE
-            identityCameraInfoText.visibility = View.VISIBLE
-
-            handler.sendEmptyMessageDelayed(INITIALIZE_BACK_SCAN, INFO_READ_WAIT_TIME)
-        })
-    }
-
-    override fun backScanCompleted() {
-        flowState = State.SELFIE_SCAN_PRE
-        identityCameraInfoImage.setImageResource(R.drawable.kyc_facescan)
-        identityCameraInfoText.text = getString(R.string.identityCameraInfoSelfieText)
-
-        identityCameraInfoBack.visibility = View.GONE
-        identityCameraInfoFront.visibility = View.GONE
-
-        speechRecognitionText.visibility = View.VISIBLE
-
-
-        handler.sendEmptyMessageDelayed(INITIALIZE_SPEECH_RECOGNITION, INFO_READ_WAIT_TIME)
-
+    override fun speechRecognitionFailed(result: String) {
+        
     }
 
     override fun selfieScanCompleted(faceBitmap: Bitmap) {
-        flowState = State.COMPLETE
+        flowState = COMPLETE
         identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
 
         //Signature Intent
@@ -197,11 +219,11 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     private fun updateDeviceOrientation(second: Float) {
-        if (flowState == State.SELFIE_SCAN_DURING) {
+        if (flowState == SELFIE_SCAN_DURING) {
             if (second < -1.4) {
-                identityCameraWarningText.text = "STRAIGHT"
+                //identityCameraWarningText.text = "STRAIGHT"
             } else {
-                identityCameraWarningText.text = "NOT STRAIGHT"
+                // identityCameraWarningText.text = "NOT STRAIGHT"
             }
             identityCameraPresenter?.setDeviceIsUpright(second < -1.4)
         }
@@ -217,7 +239,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     override fun getActivityContext(): Context {
-        return this
+        return applicationContext
     }
 
     override fun getActivityAssets(): AssetManager {
@@ -241,6 +263,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     override fun onDestroy() {
         super.onDestroy()
         identityCameraPresenter?.detach()
+        sensorManager.unregisterListener(this)
     }
 
     private fun putImageToIntent(name: String, intent: Intent, bitmap: Bitmap?) {
@@ -251,6 +274,11 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
             intent.putExtra(name, bs.toByteArray())
         }
     }
+
+    override fun updateEulerAngles(y: Float, z: Float) {
+        identityCameraWarningText.text = "Y angle : $y, Z angle : $z"
+    }
+
 
     enum class State {
         SPEECH_RECOGNITION_PRE,
@@ -265,7 +293,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     companion object {
-        var flowState = State.FRONT_SCAN_PRE
+        var flowState = FRONT_SCAN_PRE
         var INITIALIZE_FRONT_SCAN = 0
         var INITIALIZE_BACK_SCAN = 1
         var INITIALIZE_SELFIE_SCAN = 2

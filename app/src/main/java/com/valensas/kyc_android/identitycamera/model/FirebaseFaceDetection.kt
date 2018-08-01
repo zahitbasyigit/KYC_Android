@@ -6,9 +6,11 @@ import android.view.Surface
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark
 import com.otaliastudios.cameraview.Frame
 import com.valensas.kyc_android.identitycamera.IdentityCameraPresenter
 import java.io.ByteArrayOutputStream
+import kotlin.math.absoluteValue
 
 
 /**
@@ -27,12 +29,15 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
     private fun detectFaceIn(frame: Frame) {
         if (deviceIsUpwards || detectionMode == DETECT_IN_DOCUMENT) {
             frame.data?.let {
-                val myFrame = MyFrame(frame.data.clone(), frame.rotation, MySize(frame.size.width, frame.size.height), frame.format, false)
+                val frameData = ByteArray(frame.data.size)
+                System.arraycopy(frame.data, 0, frameData, 0, frameData.size)
+                val myFrame = MyFrame(frameData, frame.rotation, MySize(frame.size.width, frame.size.height), frame.format, false)
 
                 firebaseFaceWrapper.process(
-                        image = convertFrameToImage(frame),
+                        image = convertFrameToImage(myFrame),
                         onSuccess = {
                             Log.d("Scanner", "Scanning Faces : ${this.detectionMode}")
+
                             if (it.isNotEmpty()) {
                                 val face = it.first()
                                 processImage(face, myFrame)
@@ -45,10 +50,10 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
         }
     }
 
-    private fun convertFrameToImage(frame: Frame) =
+    private fun convertFrameToImage(frame: MyFrame) =
             FirebaseVisionImage.fromByteArray(frame.data!!, extractFrameMetadata(frame))
 
-    private fun extractFrameMetadata(frame: Frame): FirebaseVisionImageMetadata =
+    private fun extractFrameMetadata(frame: MyFrame): FirebaseVisionImageMetadata =
             FirebaseVisionImageMetadata.Builder()
                     .setWidth(frame.size.width)
                     .setHeight(frame.size.height)
@@ -77,6 +82,13 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
     }
 
     private fun processImage(fbFace: FirebaseVisionFace, frame: MyFrame) {
+        if (detectionMode == DETECT_IN_SELFIE && fbFace.headEulerAngleY.absoluteValue < FACE_ANGLE_THRESHOLD &&
+                fbFace.headEulerAngleZ.absoluteValue < FACE_ANGLE_THRESHOLD) {
+
+            identityCameraPresenter?.updateEulerAngles(fbFace.headEulerAngleY, fbFace.headEulerAngleZ)
+            return
+        }
+
         printBoundingBox(fbFace.boundingBox)
         printFrameDimensions(frame)
 
@@ -141,6 +153,7 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
 
     companion object {
         private const val RIGHT_ANGLE = 90
+        private const val FACE_ANGLE_THRESHOLD = 3F
         const val DETECT_IN_DOCUMENT = 0
         const val DETECT_IN_SELFIE = 1
     }
