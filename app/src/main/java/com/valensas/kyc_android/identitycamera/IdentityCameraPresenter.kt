@@ -55,8 +55,6 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
     fun listenFrontIdentityScan() {
         var firstTime = true
-        faceDetector.detectionMode = FirebaseFaceDetection.DETECT_IN_DOCUMENT
-
 
         frontTextScanProcessor = FrameProcessor {
             if (firstTime) {
@@ -69,9 +67,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
             abbyyOCR.receiveBuffer(it.data)
         }
 
-        frontFaceScanProcessor = FrameProcessor {
-            faceDetector.process(it)
-        }
+
 
         frontDocumentClassifier = FrameProcessor {
             val results = classifier.recognizeImage(convertFrameToBitmap(it))
@@ -80,8 +76,16 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
 
 
         identityCameraView?.getCameraView()?.addFrameProcessor(frontTextScanProcessor)
-        identityCameraView?.getCameraView()?.addFrameProcessor(frontFaceScanProcessor)
         identityCameraView?.getCameraView()?.addFrameProcessor(frontDocumentClassifier)
+    }
+
+    fun listenFrontFaceScan() {
+        faceDetector.detectionMode = FirebaseFaceDetection.DETECT_IN_DOCUMENT
+
+        frontFaceScanProcessor = FrameProcessor {
+            faceDetector.process(it)
+        }
+        identityCameraView?.getCameraView()?.addFrameProcessor(frontFaceScanProcessor)
     }
 
     fun listenBackIdentityScan() {
@@ -110,16 +114,11 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         }
     }
 
-    fun listenSpeechRecognition(){
+    fun listenSpeechRecognition() {
 
         speechRecognition.recognizeSpeech()
     }
 
-    fun speechRecognitionSuccessful(results: ArrayList<String>){
-        if(results!=null){
-        identityCameraView?.speechRecognitionCompleted(results)
-        }
-    }
 
     fun frontFaceScanSuccessful(faceBitmap: Bitmap) {
         this.frontFaceScanCompleted = true
@@ -158,6 +157,14 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
             identityCameraView?.backScanCompleted()
             qrReader.firebaseQRWrapper.qrDetector.close()
         }
+    }
+
+    fun speechRecognitionSuccessful(found: String) {
+        identityCameraView?.speechRecognitionCompleted(found)
+    }
+
+    fun speechRecognitionUnsuccessful(found: String, required: String) {
+        identityCameraView?.speechRecognitionFailed("Error, required : $required , found : $found")
     }
 
     fun selfieFaceScanSuccessful(faceBitmap: Bitmap) {
@@ -207,4 +214,9 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private fun setDocumentType(type: String) {
         abbyyOCR.setDocumentType(type)
     }
+
+    fun updateEulerAngles(headEulerAngleY: Float, headEulerAngleZ: Float) {
+        identityCameraView?.updateEulerAngles(headEulerAngleY, headEulerAngleZ)
+    }
+
 }

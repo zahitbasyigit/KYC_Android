@@ -20,6 +20,7 @@ class IdentitySignitureDrawView(context: Context, attrs: AttributeSet) : View(co
     private var scale: Float = 1F
     private var width: Int? = null
     private var height: Int? = null
+    var allowInput = true
 
     private var path: Path? = null
 
@@ -92,10 +93,12 @@ class IdentitySignitureDrawView(context: Context, attrs: AttributeSet) : View(co
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (!allowInput) return true
+
         val x = event?.x
         val y = event?.y
 
-        when (event?.getAction()) {
+        when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 touchStart(x, y)
                 invalidate()

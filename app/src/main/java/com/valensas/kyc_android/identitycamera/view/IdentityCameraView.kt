@@ -14,10 +14,12 @@ interface IdentityCameraView : BaseView {
     fun frontScanCompleted(documentItemSet: DocumentItemSet, faceBitmap: Bitmap)
     fun backScanCompleted()
     fun selfieScanCompleted(faceBitmap: Bitmap)
-    fun speechRecognitionCompleted(results: ArrayList<String>)
+    fun speechRecognitionCompleted(result: String)
+    fun speechRecognitionFailed(s: String)
     fun getCameraView(): CameraView
     fun getDefaultRotation(): Int
     fun getActivityContext(): Context
     fun getActivityAssets(): AssetManager
+    fun updateEulerAngles(y: Float, z: Float)
 
 }

@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
                 .getBoolean("isFirstRun", true)
 
         if (isFirstRun) {
-            val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+            val intent = Intent(this, IdentityCameraActivity::class.java)
             startActivity(intent)
         }
 
@@ -198,9 +198,9 @@ class MainActivity : AppCompatActivity(), MainView, ViewPager.OnPageChangeListen
                 }
                 if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED) {
 
-                    //val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
-                    //startActivity(intent)
-                    initSignitureActivity()
+                    val intent = Intent(this@MainActivity, IdentityCameraActivity::class.java)
+                    startActivity(intent)
+                    //initSignitureActivity()
                 }
 
 

@@ -12,6 +12,22 @@ import java.util.*
 class ItemFormatTest {
 
     @Test
+    fun arrayTest() {
+        class myClass(val array: IntArray) {
+
+        }
+
+        val array = intArrayOf(2, 3, 4)
+        val newArray = IntArray(3)
+        System.arraycopy(array, 0, newArray, 0, 3)
+        val item = myClass(newArray)
+        array[0] = 15
+        assertEquals(item.array[0], 2)
+
+
+    }
+
+    @Test
     fun documentBirthdateTest() {
 
     }

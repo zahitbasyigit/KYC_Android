@@ -50,6 +50,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
         })
 
         identitySignitureContinueButton.setOnClickListener({
+            identitySignitureDrawView.allowInput = false
             identitySignitureRetryButton.setTextColor(Color.BLACK)
             identitySignitureContinueButton.setTextColor(Color.BLACK)
             spinnerView.visibility = View.VISIBLE
@@ -61,7 +62,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
             intent.putExtra("Surname", surname)
             intent.putExtra("TCKN", tckn)
             intent.putExtra("Birthday", birthday)
-            //startActivity(intent)
+            startActivity(intent)
         })
     }
 
