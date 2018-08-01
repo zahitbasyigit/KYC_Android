@@ -31,6 +31,7 @@ class IdentityResultActivity : AppCompatActivity() {
         loadImageFromBundleToView("DrawnSigniture", identityResultSignitureImage)
         loadImageFromBundleToView("SelfieFace", identityResultSelfieImage)
         loadImageFromBundleToView("DocumentFace", identityResultIDImage)
+        loadFloatFromBundleToTextView("FaceSimilarityPercentage", identityResultSelfiePercentageMatchingText)
         loadStringFromBundleToTextView("Name", identityResultName)
         loadStringFromBundleToTextView("Surname", identityResultSurname)
         loadStringFromBundleToTextView("TCKN", identityResultTCKN)
@@ -150,5 +151,10 @@ class IdentityResultActivity : AppCompatActivity() {
 
     private fun loadStringFromBundleToTextView(name: String, textView: TextView) {
         textView.text = intent.getStringExtra(name)
+    }
+    private fun loadFloatFromBundleToTextView(name: String, textView: TextView) {
+        val floatvalue = getIntent().getFloatExtra(name, 0F)
+
+        textView.text = Float.toString()
     }
 }
