@@ -3,6 +3,7 @@ package com.valensas.kyc_android.identityresult
 import android.animation.ValueAnimator
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -13,9 +14,12 @@ import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_identity_result.*
+import java.nio.ByteBuffer
 
 
 class IdentityResultActivity : AppCompatActivity() {
+
+    private var facePercentageMatch: Float = 0F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
@@ -29,8 +33,8 @@ class IdentityResultActivity : AppCompatActivity() {
 
     private fun loadInfo() {
         loadImageFromBundleToView("DrawnSigniture", identityResultSignitureImage)
-        loadImageFromBundleToView("SelfieFace", identityResultSelfieImage)
-        loadImageFromBundleToView("DocumentFace", identityResultIDImage)
+        loadImageFromFileToView(intent.getStringExtra("SelfieFace"), identityResultSelfieImage)
+        loadImageFromFileToView(intent.getStringExtra("DocumentFace"), identityResultIDImage)
         loadFloatFromBundleToTextView("FaceSimilarityPercentage", identityResultSelfiePercentageMatchingText)
         loadStringFromBundleToTextView("Name", identityResultName)
         loadStringFromBundleToTextView("Surname", identityResultSurname)
@@ -52,7 +56,7 @@ class IdentityResultActivity : AppCompatActivity() {
         offset += imagesDuration
 
         initScaleAnimation(identityResultSelfiePercentageMatchingText, R.anim.scale_up_from_center, percentageImageDuration, offset)
-        addPercentageAnimator(identityResultSelfiePercentageMatchingText, 0, 95, percentageValueDuration, offset)
+        addPercentageAnimator(identityResultSelfiePercentageMatchingText, 0, facePercentageMatch.toInt(), percentageValueDuration, offset)
 
         offset += percentageValueDuration
 
@@ -142,6 +146,10 @@ class IdentityResultActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun loadImageFromFileToView(file: String, imageView: CircleImageView): Bitmap? {
+        return BitmapFactory.decodeStream(openFileInput(file))
+    }
+
     private fun loadImageFromBundleToView(name: String, imageView: CircleImageView) {
         if (intent.hasExtra(name)) {
             val bitmap = BitmapFactory.decodeByteArray(intent.getByteArrayExtra(name), 0, intent.getByteArrayExtra(name).size)
@@ -152,9 +160,10 @@ class IdentityResultActivity : AppCompatActivity() {
     private fun loadStringFromBundleToTextView(name: String, textView: TextView) {
         textView.text = intent.getStringExtra(name)
     }
+
     private fun loadFloatFromBundleToTextView(name: String, textView: TextView) {
         val floatvalue = getIntent().getFloatExtra(name, 0F)
-
+        facePercentageMatch = floatvalue
         textView.text = Float.toString()
     }
 }

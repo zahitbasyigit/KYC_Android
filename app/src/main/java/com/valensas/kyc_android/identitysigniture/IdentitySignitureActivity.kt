@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -14,28 +15,24 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
+import com.amazonaws.mobile.client.AWSMobileClient
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.rekognition.AmazonRekognitionClient
+import com.amazonaws.services.rekognition.model.CompareFacesRequest
+import com.amazonaws.services.rekognition.model.Image
 import com.valensas.kyc_android.R
 import com.valensas.kyc_android.identityresult.IdentityResultActivity
 import kotlinx.android.synthetic.main.activity_identity_signiture.*
 import java.io.ByteArrayOutputStream
-import com.amazonaws.mobile.client.AWSMobileClient
-import com.amazonaws.regions.Regions
-import com.amazonaws.services.rekognition.AmazonRekognition
-import com.amazonaws.services.rekognition.AmazonRekognitionClient
-import com.amazonaws.services.rekognition.model.Image
-import com.amazonaws.services.rekognition.model.BoundingBox
-import com.amazonaws.services.rekognition.model.CompareFacesMatch
-import com.amazonaws.services.rekognition.model.CompareFacesRequest
-import com.amazonaws.services.rekognition.model.CompareFacesResult
-import com.amazonaws.services.rekognition.model.ComparedFace
+import java.lang.ref.WeakReference
 import java.nio.ByteBuffer
 
 
 class IdentitySignitureActivity : AppCompatActivity() {
 
-    private var faceSelfieBitmap: Bitmap? = null
-    private var faceScannedBitmap: Bitmap? = null
-    private var signitureScannedBitmap: Bitmap? = null
+    private var faceSelfieFile: String? = null
+    private var faceScannedFile: String? = null
+    private var signitureScannedFile: String? = null
     private var tckn: String? = null
     private var name: String? = null
     private var surname: String? = null
@@ -51,10 +48,12 @@ class IdentitySignitureActivity : AppCompatActivity() {
             Log.d("aws", "AWSMobileClient is initialized")
         }.execute()
 
-        faceSelfieBitmap = loadImageFromBundle("SelfieFace")
-        faceScannedBitmap = loadImageFromBundle("DocumentFace")
-        faceSelfieByteArray = loadByteArrayfromBundle("SelfieFace")
-        faceScanByteArray = loadByteArrayfromBundle("DocumentFace")
+        faceSelfieFile = intent?.getStringExtra("SelfieFace")
+        faceScannedFile = intent?.getStringExtra("DocumentFace")
+        faceSelfieByteArray = loadByteBufferFromFile(faceSelfieFile)
+        faceScanByteArray = loadByteBufferFromFile(faceScannedFile)
+        println(faceSelfieByteArray)
+        println(faceScanByteArray)
         tckn = intent?.getStringExtra("TCKN")
         name = intent?.getStringExtra("Name")
         surname = intent?.getStringExtra("Surname")
@@ -75,49 +74,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
             identitySignitureContinueButton.setTextColor(Color.BLACK)
             spinnerView.visibility = View.VISIBLE
 
-            val credentialsProvider = CognitoCachingCredentialsProvider(
-                    applicationContext, /* get the context for the application */
-                    "COGNITO_IDENTITY_POOL", /* Identity Pool ID */
-                    Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
-            )
-
-            val client = AmazonRekognitionClient(credentialsProvider)
-
-
-            val source = Image()
-                    .withBytes(faceSelfieByteArray)
-            val target = Image()
-                    .withBytes(faceScanByteArray)
-
-            val request = CompareFacesRequest()
-                    .withSourceImage(source)
-                    .withTargetImage(target)
-                    .withSimilarityThreshold(60F)
-
-            // Call operation
-            val compareFacesResult = client.compareFaces(request)
-
-
-            // Display results
-            val faceDetails = compareFacesResult.getFaceMatches()
-            val match =faceDetails[0]
-            val face = match.getFace()
-            val facesimilarity = face.confidence
-
-
-
-
-            intent = Intent(this, IdentityResultActivity::class.java)
-            intent.putExtra("FaceSimilarityPercentage", facesimilarity)
-
-            putImageToIntent("DrawnSigniture", intent, identitySignitureDrawView.bitmap)
-            putImageToIntent("SelfieFace", intent, faceSelfieBitmap)
-            putImageToIntent("DocumentFace", intent, faceScannedBitmap)
-            intent.putExtra("Name", name)
-            intent.putExtra("Surname", surname)
-            intent.putExtra("TCKN", tckn)
-            intent.putExtra("Birthday", birthday)
-            startActivity(intent)
+            FaceMatchAsyncTask(this@IdentitySignitureActivity).execute()
         })
     }
 
@@ -152,25 +109,101 @@ class IdentitySignitureActivity : AppCompatActivity() {
         dialog.window.setBackgroundDrawableResource(R.drawable.round_dialog_background)
     }
 
+    private fun displayResultActivity(similarity: Float) {
+
+        intent = Intent(this, IdentityResultActivity::class.java)
+        intent.putExtra("FaceSimilarityPercentage", similarity)
+        putImageToIntent("DrawnSigniture", intent, identitySignitureDrawView.bitmap)
+        intent.putExtra("SelfieFace", faceSelfieFile)
+        intent.putExtra("DocumentFace", faceScannedFile)
+        intent.putExtra("Name", name)
+        intent.putExtra("Surname", surname)
+        intent.putExtra("TCKN", tckn)
+        intent.putExtra("Birthday", birthday)
+        startActivity(intent)
+    }
+
     private fun putImageToIntent(name: String, intent: Intent, bitmap: Bitmap?) {
         if (bitmap != null) {
             val bs = ByteArrayOutputStream()
-            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false)
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 360, 360, false)
             scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, bs)
             intent.putExtra(name, bs.toByteArray())
         }
     }
 
-    private fun loadImageFromBundle(name: String): Bitmap? {
-        if (getIntent().hasExtra(name)) {
-            return BitmapFactory.decodeByteArray(getIntent().getByteArrayExtra(name), 0, getIntent().getByteArrayExtra(name).size)
+    private fun loadByteBufferFromFile(file: String?): ByteBuffer {
+        return loadByteBufferfromBitmap(file?.let { loadImageFromFile(it) })
+    }
+
+    private fun loadImageFromFile(file: String): Bitmap? {
+        return BitmapFactory.decodeStream(openFileInput(file))
+    }
+
+    private fun loadByteBufferfromBitmap(bitmap: Bitmap?): ByteBuffer {
+        if (bitmap != null) {
+            val bytes = bitmap.byteCount
+            val buffer = ByteBuffer.allocate(bytes)
+            bitmap.copyPixelsToBuffer(buffer)
+            return buffer
+//            val byteArray = buffer.array()
+            //           return ByteBuffer.wrap(byteArray)
         }
-        return null
+        return ByteBuffer.allocate(0)
     }
 
-    private fun loadByteArrayfromBundle(name:String): ByteBuffer {
 
-            return ByteBuffer.wrap(getIntent().getByteArrayExtra(name))
+    class FaceMatchAsyncTask(activity: IdentitySignitureActivity) : AsyncTask<String, Void, Boolean>() {
+        private var activityReference: WeakReference<IdentitySignitureActivity> = WeakReference(activity)
+        var faceSimilarity: Float = 0F
 
+        override fun onPreExecute() {
+            super.onPreExecute()
+        }
+
+        override fun doInBackground(vararg urls: String?): Boolean {
+            val credentialsProvider = CognitoCachingCredentialsProvider(
+                    activityReference.get()?.applicationContext, /* get the context for the application */
+                    "us-east-1:facf575d-3636-4236-a54e-77f81d10b3d5", /* Identity Pool ID */
+                    Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+            )
+
+            val client = AmazonRekognitionClient(credentialsProvider)
+
+
+            val sourceBuffer = activityReference.get()?.faceSelfieByteArray
+            val targetBuffer = activityReference.get()?.faceScanByteArray
+
+            println(sourceBuffer)
+            println(targetBuffer)
+
+            val source = Image()
+                    .withBytes(sourceBuffer)
+            val target = Image()
+                    .withBytes(targetBuffer)
+
+            val request = CompareFacesRequest()
+                    .withSourceImage(source)
+                    .withTargetImage(target)
+                    .withSimilarityThreshold(0F)
+
+            // Call operation
+            val compareFacesResult = client.compareFaces(request)
+
+
+            // Display results
+            val faceDetails = compareFacesResult.getFaceMatches()
+            val match = faceDetails[0]
+            val face = match.getFace()
+            faceSimilarity = face.confidence
+
+            return true
+        }
+
+        override fun onPostExecute(result: Boolean?) {
+            super.onPostExecute(result)
+            activityReference.get()?.displayResultActivity(faceSimilarity)
+        }
     }
+
 }

@@ -87,10 +87,11 @@ class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) :
 
     override fun onError(errorCode: Int) {
         speech.cancel()
+        identityCameraPresenter?.speechRecognitionSuccessful("REMOVETHISLATER")
 
         val errorMessage = getErrorText(errorCode)
         Log.d(LOG_TAG, "FAILED $errorMessage")
-        identityCameraPresenter?.speechRecognitionUnsuccessful(errorMessage)
+        //identityCameraPresenter?.speechRecognitionUnsuccessful(errorMessage)
     }
 
     override fun onResults(results: Bundle?) {

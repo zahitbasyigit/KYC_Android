@@ -22,6 +22,8 @@ import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity.State
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_identity_camera.*
 import java.io.ByteArrayOutputStream
+import android.R.attr.bitmap
+
 
 class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEventListener {
 
@@ -188,8 +190,8 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
 
         //Signature Intent
         intent = Intent(this, IdentitySignitureActivity::class.java)
-        putImageToIntent("SelfieFace", intent, faceBitmap)
-        putImageToIntent("DocumentFace", intent, documentFaceBitmap)
+        putImageToFileAndFileToIntent("SelfieFace", "selfie", intent, faceBitmap)
+        putImageToFileAndFileToIntent("DocumentFace", "documentface",intent, documentFaceBitmap)
         intent.putExtra("TCKN", documentItemSet?.tckn)
         intent.putExtra("Name", documentItemSet?.name)
         intent.putExtra("Surname", documentItemSet?.surname)
@@ -273,13 +275,18 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         sensorManager.unregisterListener(this)
     }
 
-    private fun putImageToIntent(name: String, intent: Intent, bitmap: Bitmap?) {
-        if (bitmap != null) {
-            val bs = ByteArrayOutputStream()
-            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false)
-            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, bs)
-            intent.putExtra(name, bs.toByteArray())
+    private fun putImageToFileAndFileToIntent(extraName: String, fileName: String, intent: Intent, bitmap: Bitmap?) {
+        try {
+            val bytes = ByteArrayOutputStream()
+            bitmap?.compress(Bitmap.CompressFormat.PNG, 100, bytes)
+            val fo = openFileOutput(fileName, Context.MODE_PRIVATE)
+            fo.write(bytes.toByteArray())
+            fo.close()
+            intent.putExtra(extraName, fileName)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+
     }
 
     override fun updateEulerAngles(y: Float, z: Float) {
