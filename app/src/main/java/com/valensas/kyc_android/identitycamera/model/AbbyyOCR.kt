@@ -54,7 +54,7 @@ class AbbyyOCR(val identityCameraPresenter: IdentityCameraPresenter) {
             val currentDocument = currentDocumentSet?.document
 
             if (currentDocumentSet == driversLicence) {
-                if (status?.ordinal!! <= 3)
+                if (status?.ordinal!! < 3)
                     return
             } else if (currentDocumentSet == identityCard) {
                 if (status?.ordinal!! < 3) {

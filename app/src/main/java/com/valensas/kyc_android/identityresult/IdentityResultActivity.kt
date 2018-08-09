@@ -146,8 +146,8 @@ class IdentityResultActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun loadImageFromFileToView(file: String, imageView: CircleImageView): Bitmap? {
-        return BitmapFactory.decodeStream(openFileInput(file))
+    private fun loadImageFromFileToView(file: String, imageView: CircleImageView) {
+        imageView.setImageBitmap(BitmapFactory.decodeStream(openFileInput(file)))
     }
 
     private fun loadImageFromBundleToView(name: String, imageView: CircleImageView) {
@@ -162,8 +162,8 @@ class IdentityResultActivity : AppCompatActivity() {
     }
 
     private fun loadFloatFromBundleToTextView(name: String, textView: TextView) {
-        val floatvalue = getIntent().getFloatExtra(name, 0F)
+        val floatvalue = intent.getFloatExtra(name, 0F)
         facePercentageMatch = floatvalue
-        textView.text = Float.toString()
+        //textView.text = Float.toString()
     }
 }

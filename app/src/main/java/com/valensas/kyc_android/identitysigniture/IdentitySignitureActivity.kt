@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Bundle
+import android.support.v4.graphics.BitmapCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Gravity
@@ -120,6 +121,9 @@ class IdentitySignitureActivity : AppCompatActivity() {
         intent.putExtra("Surname", surname)
         intent.putExtra("TCKN", tckn)
         intent.putExtra("Birthday", birthday)
+
+        animation_view.cancelAnimation()
+        animation_view.visibility = View.INVISIBLE
         startActivity(intent)
     }
 
@@ -142,12 +146,13 @@ class IdentitySignitureActivity : AppCompatActivity() {
 
     private fun loadByteBufferfromBitmap(bitmap: Bitmap?): ByteBuffer {
         if (bitmap != null) {
-            val bytes = bitmap.byteCount
-            val buffer = ByteBuffer.allocate(bytes)
-            bitmap.copyPixelsToBuffer(buffer)
-            return buffer
-//            val byteArray = buffer.array()
-            //           return ByteBuffer.wrap(byteArray)
+            val stream = ByteArrayOutputStream()
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 320, 320, false)
+            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            val byteArray = stream.toByteArray()
+            scaledBitmap.recycle()
+            bitmap.recycle()
+            return ByteBuffer.wrap(byteArray)
         }
         return ByteBuffer.allocate(0)
     }
@@ -171,8 +176,9 @@ class IdentitySignitureActivity : AppCompatActivity() {
             val client = AmazonRekognitionClient(credentialsProvider)
 
 
-            val sourceBuffer = activityReference.get()?.faceSelfieByteArray
-            val targetBuffer = activityReference.get()?.faceScanByteArray
+            val sourceBuffer = activityReference.get()?.faceSelfieByteArray?.asReadOnlyBuffer()
+
+            val targetBuffer = activityReference.get()?.faceScanByteArray?.asReadOnlyBuffer()
 
             println(sourceBuffer)
             println(targetBuffer)
@@ -194,8 +200,7 @@ class IdentitySignitureActivity : AppCompatActivity() {
             // Display results
             val faceDetails = compareFacesResult.getFaceMatches()
             val match = faceDetails[0]
-            val face = match.getFace()
-            faceSimilarity = face.confidence
+            faceSimilarity = match.similarity
 
             return true
         }
