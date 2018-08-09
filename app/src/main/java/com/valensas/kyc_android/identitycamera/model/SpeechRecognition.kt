@@ -20,15 +20,10 @@ class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) :
 
     init {
         speech = SpeechRecognizer.createSpeechRecognizer(identityCameraPresenter?.getContext());
-        speech.setRecognitionListener(this);
-        recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
-                "tr");
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
-                "tr");
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+        speech.setRecognitionListener(this)
+        recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "tr-TR")
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
     }
 
     fun recognizeSpeech() {

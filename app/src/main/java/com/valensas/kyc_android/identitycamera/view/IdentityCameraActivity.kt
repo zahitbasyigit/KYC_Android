@@ -4,12 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.AssetManager
 import android.graphics.Bitmap
-import android.graphics.Camera
 import android.graphics.PointF
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
@@ -22,7 +22,7 @@ import com.valensas.kyc_android.identitycamera.view.IdentityCameraActivity.State
 import com.valensas.kyc_android.identitysigniture.IdentitySignitureActivity
 import kotlinx.android.synthetic.main.activity_identity_camera.*
 import java.io.ByteArrayOutputStream
-import android.R.attr.bitmap
+import java.lang.ref.WeakReference
 
 
 class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEventListener {
@@ -30,6 +30,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     private var identityCameraPresenter: IdentityCameraPresenter? = null
     private var documentItemSet: DocumentItemSet? = null
     private var documentFaceBitmap: Bitmap? = null
+    private var selfieFaceBitmap: Bitmap? = null
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
     private lateinit var magnetometer: Sensor
@@ -187,16 +188,22 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     override fun selfieScanCompleted(faceBitmap: Bitmap) {
         flowState = COMPLETE
         identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
+        selfieFaceBitmap = faceBitmap
 
-        //Signature Intent
+        //File save starting, takes time. load spinner
+        cameraView.stop()
+        cameraSpinnerView.visibility = View.VISIBLE
+        FileSaveAndProceedAsyncTask(this).execute()
+    }
+
+    fun completeCameraIdentity() {
         intent = Intent(this, IdentitySignitureActivity::class.java)
-        putImageToFileAndFileToIntent("SelfieFace", "selfie", intent, faceBitmap)
-        putImageToFileAndFileToIntent("DocumentFace", "documentface",intent, documentFaceBitmap)
+        intent.putExtra("SelfieFace", "selfie")
+        intent.putExtra("DocumentFace", "documentface")
         intent.putExtra("TCKN", documentItemSet?.tckn)
         intent.putExtra("Name", documentItemSet?.name)
         intent.putExtra("Surname", documentItemSet?.surname)
         intent.putExtra("Birthday", documentItemSet?.birthdate)
-
         startActivity(intent)
     }
 
@@ -275,18 +282,17 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         sensorManager.unregisterListener(this)
     }
 
-    private fun putImageToFileAndFileToIntent(extraName: String, fileName: String, intent: Intent, bitmap: Bitmap?) {
+    private fun putImageToFile(fileName: String, bitmap: Bitmap?) {
         try {
+            println("$fileName : ${bitmap?.width},${bitmap?.height}")
             val bytes = ByteArrayOutputStream()
             bitmap?.compress(Bitmap.CompressFormat.PNG, 100, bytes)
             val fo = openFileOutput(fileName, Context.MODE_PRIVATE)
             fo.write(bytes.toByteArray())
             fo.close()
-            intent.putExtra(extraName, fileName)
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     override fun updateEulerAngles(y: Float, z: Float) {
@@ -318,5 +324,23 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         var INFO_READ_WAIT_TIME = 1500L
     }
 
+    class FileSaveAndProceedAsyncTask(activity: IdentityCameraActivity) : AsyncTask<String, Void, Boolean>() {
+        private var activityReference: WeakReference<IdentityCameraActivity> = WeakReference(activity)
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+        }
+
+        override fun doInBackground(vararg urls: String?): Boolean {
+            activityReference.get()?.putImageToFile("selfie", activityReference.get()?.selfieFaceBitmap)
+            activityReference.get()?.putImageToFile("documentface", activityReference.get()?.documentFaceBitmap)
+            return true
+        }
+
+        override fun onPostExecute(result: Boolean?) {
+            super.onPostExecute(result)
+            activityReference.get()?.completeCameraIdentity()
+        }
+    }
 
 }

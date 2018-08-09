@@ -116,10 +116,10 @@
                     android:layout_marginBottom="16dp"
                     android:fontFamily="@font/sf_ui_display_thin"
                     android:gravity="center"
-                    android:visibility="invisible"
                     android:text="@string/speechRecognitionText"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
+                    android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -152,6 +152,60 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/cameraSpinnerView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/signitureSpinnerTransparentBackground"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/animation_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toTopOf="@+id/spinnerBottomGuideline"
+                    app:layout_constraintEnd_toStartOf="@+id/spinnerRightGuideline"
+                    app:layout_constraintLeft_toRightOf="@id/spinnerLeftGuideline"
+                    app:layout_constraintStart_toStartOf="@+id/spinnerLeftGuideline"
+                    app:layout_constraintTop_toTopOf="@+id/spinnerTopGuideline"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="dna_like_loader_white.json"
+                    app:lottie_loop="true" />
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/spinnerBottomGuideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.60" />
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/spinnerLeftGuideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.25" />
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/spinnerTopGuideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.40" />
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/spinnerRightGuideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.75" />
+
             </android.support.constraint.ConstraintLayout>
 
         </android.support.constraint.ConstraintLayout>
