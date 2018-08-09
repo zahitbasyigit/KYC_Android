@@ -37,6 +37,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     private var frontFaceScanCompleted = false
     private var frontTextScanCompleted = false
 
+
     private var documentItemSet: DocumentItemSet? = null
     private var faceBitmap: Bitmap? = null
 
@@ -109,6 +110,14 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         }
     }
 
+    fun listenSelfieBlinkScan() {
+        faceDetector.detectionMode = FirebaseFaceDetection.DETECT_IN_BLINK_SELFIE
+
+        identityCameraView?.getCameraView()?.addFrameProcessor {
+            faceDetector.process(it)
+        }
+    }
+
     fun listenSelfieScan() {
         faceDetector.detectionMode = FirebaseFaceDetection.DETECT_IN_SELFIE
 
@@ -129,6 +138,7 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
         faceDetector.firebaseFaceWrapper.faceDetector.close()
         checkIfFrontScanIsCompleted()
     }
+
 
     fun frontTextScanSuccessful(documentItemSet: DocumentItemSet) {
         this.frontTextScanCompleted = true
@@ -177,6 +187,12 @@ class IdentityCameraPresenter : BasePresenter<IdentityCameraView> {
     fun selfieFaceScanSuccessful(faceBitmap: Bitmap) {
         identityCameraView?.getCameraView()?.clearFrameProcessors()
         identityCameraView?.selfieScanCompleted(faceBitmap)
+        faceDetector.firebaseFaceWrapper.faceDetector.close()
+    }
+
+    fun selfieFaceBlinkScanSuccessful(faceBitmap: Bitmap) {
+        identityCameraView?.getCameraView()?.clearFrameProcessors()
+        identityCameraView?.selfieBlinkScanCompleted(faceBitmap)
         faceDetector.firebaseFaceWrapper.faceDetector.close()
     }
 

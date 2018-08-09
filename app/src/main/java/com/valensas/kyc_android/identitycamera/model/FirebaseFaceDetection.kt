@@ -62,6 +62,8 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
                             when (this.detectionMode) {
                                 DETECT_IN_DOCUMENT -> RIGHT_ANGLE * 2
                                 DETECT_IN_SELFIE -> RIGHT_ANGLE
+                                DETECT_IN_BLINK_SELFIE -> RIGHT_ANGLE
+
                                 else -> {
                                     RIGHT_ANGLE
                                 }
@@ -82,16 +84,18 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
     }
 
     private fun processImage(fbFace: FirebaseVisionFace, frame: MyFrame) {
-        if (detectionMode == DETECT_IN_SELFIE && fbFace.headEulerAngleY.absoluteValue < FACE_ANGLE_THRESHOLD &&
+        if ((detectionMode == DETECT_IN_SELFIE||detectionMode == DETECT_IN_BLINK_SELFIE) && fbFace.headEulerAngleY.absoluteValue < FACE_ANGLE_THRESHOLD &&
                 fbFace.headEulerAngleZ.absoluteValue < FACE_ANGLE_THRESHOLD) {
+
+            Log.d("didn't enter blink", "${this.detectionMode}")
 
             identityCameraPresenter?.updateEulerAngles(fbFace.headEulerAngleY, fbFace.headEulerAngleZ)
             return
         }
+        Log.d("middle ", "${this.detectionMode}")
 
         printBoundingBox(fbFace.boundingBox)
         printFrameDimensions(frame)
-
         if (fbFace.boundingBox.left > 0 && fbFace.boundingBox.right < frame.size.height &&
                 fbFace.boundingBox.top > 0 && fbFace.boundingBox.bottom < frame.size.width) {
             val out = ByteArrayOutputStream()
@@ -123,6 +127,11 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
                 }
                 DETECT_IN_SELFIE -> {
                     identityCameraPresenter?.selfieFaceScanSuccessful(croppedBitmap)
+                }
+                DETECT_IN_BLINK_SELFIE-> {
+                    Log.d("blink successful ", "${this.detectionMode}")
+
+                    identityCameraPresenter?.selfieFaceBlinkScanSuccessful(croppedBitmap)
                 }
             }
 
@@ -156,6 +165,7 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
         private const val FACE_ANGLE_THRESHOLD = 3F
         const val DETECT_IN_DOCUMENT = 0
         const val DETECT_IN_SELFIE = 1
+        const val DETECT_IN_BLINK_SELFIE = 2
     }
 
 }
