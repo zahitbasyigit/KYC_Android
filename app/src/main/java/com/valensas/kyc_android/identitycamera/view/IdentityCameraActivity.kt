@@ -50,6 +50,10 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
                 initializeSelfieScan()
                 true
             }
+            INITIALIZE_SELFIE_BLINK_SCAN -> {
+                initializeSelfieBlinkScan()
+                true
+            }
             INITIALIZE_SPEECH_RECOGNITION -> {
                 initializeSpeechRecognition()
                 true
@@ -124,11 +128,13 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     private fun initializeSelfieScan() {
         identityCameraInfoImage.visibility = View.GONE
         identityCameraInfoText.visibility = View.GONE
-        identityCameraWarningText.visibility = View.VISIBLE
         identityCameraPresenter?.listenSelfieScan()
         flowState = SELFIE_SCAN_DURING
     }
-
+    private fun initializeSelfieBlinkScan() {
+        identityCameraPresenter?.listenSelfieBlinkScan()
+        flowState = SELFIE_BLINK_SCAN_DURING
+    }
 
     override fun frontScanCompleted(documentItemSet: DocumentItemSet, faceBitmap: Bitmap) {
         runOnUiThread({
@@ -185,11 +191,10 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         handler.sendEmptyMessageDelayed(INITIALIZE_SPEECH_RECOGNITION, INFO_READ_WAIT_TIME)
     }
 
-    override fun selfieScanCompleted(faceBitmap: Bitmap) {
+    override fun selfieBlinkScanCompleted(faceBitmap: Bitmap) {
         flowState = COMPLETE
         identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
-        selfieFaceBitmap = faceBitmap
-
+ 
         //File save starting, takes time. load spinner
         cameraView.stop()
         cameraSpinnerView.visibility = View.VISIBLE
@@ -205,6 +210,15 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         intent.putExtra("Surname", documentItemSet?.surname)
         intent.putExtra("Birthday", documentItemSet?.birthdate)
         startActivity(intent)
+    }
+
+    override fun selfieScanCompleted(faceBitmap: Bitmap) {
+        flowState = SELFIE_BLINK_SCAN__PRE
+        selfieFaceBitmap = faceBitmap
+        identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
+        handler.sendEmptyMessageDelayed(INITIALIZE_SELFIE_BLINK_SCAN, INFO_READ_WAIT_TIME)
+        documentSelfieBitmap=faceBitmap
+
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -234,7 +248,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     private fun updateDeviceOrientation(second: Float) {
-        if (flowState == SELFIE_SCAN_DURING) {
+        if (flowState == SELFIE_SCAN_DURING||flowState == SELFIE_BLINK_SCAN_DURING) {
             if (second < -1.4) {
                 //identityCameraWarningText.text = "STRAIGHT"
             } else {
@@ -296,7 +310,6 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     override fun updateEulerAngles(y: Float, z: Float) {
-        identityCameraWarningText.text = "Y angle : $y, Z angle : $z"
     }
 
     override fun setSpeechRecognitionText(required: String) {
@@ -312,6 +325,8 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         BACK_SCAN_DURING,
         SELFIE_SCAN_PRE,
         SELFIE_SCAN_DURING,
+        SELFIE_BLINK_SCAN__PRE,
+        SELFIE_BLINK_SCAN_DURING,
         COMPLETE
     }
 
@@ -320,7 +335,8 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         var INITIALIZE_FRONT_SCAN = 0
         var INITIALIZE_BACK_SCAN = 1
         var INITIALIZE_SELFIE_SCAN = 2
-        var INITIALIZE_SPEECH_RECOGNITION = 3
+        var INITIALIZE_SELFIE_BLINK_SCAN = 3
+        var INITIALIZE_SPEECH_RECOGNITION = 4
         var INFO_READ_WAIT_TIME = 1500L
     }
 

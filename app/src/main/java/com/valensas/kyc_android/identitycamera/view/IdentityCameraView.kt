@@ -14,6 +14,7 @@ interface IdentityCameraView : BaseView {
     fun frontScanCompleted(documentItemSet: DocumentItemSet, faceBitmap: Bitmap)
     fun backScanCompleted()
     fun selfieScanCompleted(faceBitmap: Bitmap)
+    fun selfieBlinkScanCompleted(faceBitmap: Bitmap)
     fun setSpeechRecognitionText(required: String)
     fun speechRecognitionCompleted(message: String)
     fun speechRecognitionFailed(message: String)
