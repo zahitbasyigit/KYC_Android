@@ -217,7 +217,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         selfieFaceBitmap = faceBitmap
         identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
         handler.sendEmptyMessageDelayed(INITIALIZE_SELFIE_BLINK_SCAN, INFO_READ_WAIT_TIME)
-        documentSelfieBitmap=faceBitmap
+        selfieFaceBitmap=faceBitmap
 
     }
 
