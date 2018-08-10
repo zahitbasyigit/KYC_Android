@@ -84,7 +84,17 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
     }
 
     private fun processImage(fbFace: FirebaseVisionFace, frame: MyFrame) {
-        if ((detectionMode == DETECT_IN_SELFIE||detectionMode == DETECT_IN_BLINK_SELFIE) && fbFace.headEulerAngleY.absoluteValue < FACE_ANGLE_THRESHOLD &&
+
+        if (detectionMode == DETECT_IN_BLINK_SELFIE && fbFace.leftEyeOpenProbability < 0.2) {
+            println(detectionMode)
+            println("Closed ${fbFace.leftEyeOpenProbability}")
+        } else {
+            println(detectionMode)
+            println("Not Closed ${fbFace.leftEyeOpenProbability}")
+            return
+        }
+
+        if ((detectionMode == DETECT_IN_SELFIE || detectionMode == DETECT_IN_BLINK_SELFIE) && fbFace.headEulerAngleY.absoluteValue < FACE_ANGLE_THRESHOLD &&
                 fbFace.headEulerAngleZ.absoluteValue < FACE_ANGLE_THRESHOLD) {
 
             Log.d("didn't enter blink", "${this.detectionMode}")
@@ -128,9 +138,8 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
                 DETECT_IN_SELFIE -> {
                     identityCameraPresenter?.selfieFaceScanSuccessful(croppedBitmap)
                 }
-                DETECT_IN_BLINK_SELFIE-> {
+                DETECT_IN_BLINK_SELFIE -> {
                     Log.d("blink successful ", "${this.detectionMode}")
-
                     identityCameraPresenter?.selfieFaceBlinkScanSuccessful(croppedBitmap)
                 }
             }

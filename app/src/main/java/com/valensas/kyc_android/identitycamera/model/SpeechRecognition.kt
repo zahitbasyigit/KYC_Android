@@ -82,11 +82,10 @@ class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) :
 
     override fun onError(errorCode: Int) {
         speech.cancel()
-        identityCameraPresenter?.speechRecognitionSuccessful("REMOVETHISLATER")
 
         val errorMessage = getErrorText(errorCode)
         Log.d(LOG_TAG, "FAILED $errorMessage")
-        //identityCameraPresenter?.speechRecognitionUnsuccessful(errorMessage)
+        identityCameraPresenter?.speechRecognitionUnsuccessful(errorMessage)
     }
 
     override fun onResults(results: Bundle?) {
@@ -95,9 +94,8 @@ class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) :
         Log.i(LOG_TAG, "onResults")
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         var text = ""
-        if (matches != null) {
-            for (result in matches)
-                text += result + " "
+        if (matches != null && matches.isNotEmpty()) {
+            text += matches[0]
         }
 
         Log.i(LOG_TAG, text)
@@ -112,8 +110,7 @@ class SpeechRecognition(val identityCameraPresenter: IdentityCameraPresenter?) :
     }
 
     fun textsMatch(required: String, given: String): Boolean {
-        return true
-        //return calculate(required, given) < 1 * required.split(" ").size // 1 misspelling per word
+        return calculate(required, given) < 1 * required.split(" ").size // 1 misspelling per word
     }
 
     fun calculate(x: String, y: String): Int {

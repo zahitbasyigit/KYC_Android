@@ -18,7 +18,7 @@ class FirebaseFaceWrapper {
         FirebaseVisionFaceDetectorOptions.Builder()
                 .setModeType(FirebaseVisionFaceDetectorOptions.ACCURATE_MODE)
                 .setLandmarkType(FirebaseVisionFaceDetectorOptions.NO_LANDMARKS)
-                .setClassificationType(FirebaseVisionFaceDetectorOptions.NO_CLASSIFICATIONS)
+                .setClassificationType(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
                 .setMinFaceSize(0.15f)
                 .setTrackingEnabled(false)
                 .build()

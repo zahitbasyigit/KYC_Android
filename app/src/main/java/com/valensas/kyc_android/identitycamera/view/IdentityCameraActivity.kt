@@ -131,6 +131,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         identityCameraPresenter?.listenSelfieScan()
         flowState = SELFIE_SCAN_DURING
     }
+
     private fun initializeSelfieBlinkScan() {
         identityCameraPresenter?.listenSelfieBlinkScan()
         flowState = SELFIE_BLINK_SCAN_DURING
@@ -191,10 +192,21 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         handler.sendEmptyMessageDelayed(INITIALIZE_SPEECH_RECOGNITION, INFO_READ_WAIT_TIME)
     }
 
+    override fun selfieScanCompleted(faceBitmap: Bitmap) {
+        flowState = SELFIE_BLINK_SCAN__PRE
+        selfieFaceBitmap = faceBitmap
+        identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
+        identityCameraInfoSelfie.alpha = 0.5F
+        handler.sendEmptyMessageDelayed(INITIALIZE_SELFIE_BLINK_SCAN, INFO_READ_WAIT_TIME)
+        selfieFaceBitmap = faceBitmap
+
+    }
+
     override fun selfieBlinkScanCompleted(faceBitmap: Bitmap) {
         flowState = COMPLETE
         identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
- 
+        identityCameraInfoSelfie.alpha = 1F
+
         //File save starting, takes time. load spinner
         cameraView.stop()
         cameraSpinnerView.visibility = View.VISIBLE
@@ -210,15 +222,6 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
         intent.putExtra("Surname", documentItemSet?.surname)
         intent.putExtra("Birthday", documentItemSet?.birthdate)
         startActivity(intent)
-    }
-
-    override fun selfieScanCompleted(faceBitmap: Bitmap) {
-        flowState = SELFIE_BLINK_SCAN__PRE
-        selfieFaceBitmap = faceBitmap
-        identityCameraInfoSelfie.setImageResource(R.drawable.kyc_icon_face_checked)
-        handler.sendEmptyMessageDelayed(INITIALIZE_SELFIE_BLINK_SCAN, INFO_READ_WAIT_TIME)
-        selfieFaceBitmap=faceBitmap
-
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -248,7 +251,7 @@ class IdentityCameraActivity : AppCompatActivity(), IdentityCameraView, SensorEv
     }
 
     private fun updateDeviceOrientation(second: Float) {
-        if (flowState == SELFIE_SCAN_DURING||flowState == SELFIE_BLINK_SCAN_DURING) {
+        if (flowState == SELFIE_SCAN_DURING || flowState == SELFIE_BLINK_SCAN_DURING) {
             if (second < -1.4) {
                 //identityCameraWarningText.text = "STRAIGHT"
             } else {
