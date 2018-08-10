@@ -88,7 +88,7 @@ class FirebaseFaceDetection(private val identityCameraPresenter: IdentityCameraP
         if (detectionMode == DETECT_IN_BLINK_SELFIE && fbFace.leftEyeOpenProbability < 0.2) {
             println(detectionMode)
             println("Closed ${fbFace.leftEyeOpenProbability}")
-        } else {
+        } else if (detectionMode == DETECT_IN_BLINK_SELFIE){
             println(detectionMode)
             println("Not Closed ${fbFace.leftEyeOpenProbability}")
             return
